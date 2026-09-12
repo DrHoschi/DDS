@@ -475,7 +475,7 @@ test("failure detaches unsupported connected component but preserves floor-ancho
 
   assert.equal(result.failedConnectionIds.length, 2);
   assert.deepEqual(
-    result.detachedModuleIds.sort(),
+    [...result.detachedModuleIds].sort(),
     ["wall:001", "wall:002"],
   );
 
