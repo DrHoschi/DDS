@@ -177,3 +177,129 @@ test("all authorized module and material labels remain exposed without extra cat
     "WOOD",
   ]);
 });
+
+
+test("automatic recommendation exposes multiple valid snap targets", () => {
+  const controller = new ConstructionPrototypeController();
+  const state = controller.snapshot();
+  const selection = state.ui.targetSelection;
+
+  assert.ok(selection.candidates.length >= 2);
+  assert.equal(selection.locked, false);
+  assert.equal(
+    selection.recommendedTargetKey,
+    selection.candidates[0].key,
+  );
+  assert.equal(
+    state.placement.ghostPreview.request.targetInstanceId,
+    selection.candidates[0].request.targetInstanceId,
+  );
+  assert.equal(
+    state.placement.ghostPreview.request.targetSnapId,
+    selection.candidates[0].request.targetSnapId,
+  );
+});
+
+test("manual snap target selection moves Ghost to exact DDS-04C candidate", () => {
+  const controller = new ConstructionPrototypeController();
+  const initial = controller.snapshot();
+  const target = initial.ui.targetSelection.candidates[1];
+
+  const selected = controller.selectSnapTarget(target.key);
+
+  assert.equal(selected.ui.targetSelection.locked, true);
+  assert.equal(
+    selected.ui.targetSelection.selectedTargetKey,
+    target.key,
+  );
+  assert.equal(
+    selected.placement.ghostPreview.request.sourceSnapId,
+    target.request.sourceSnapId,
+  );
+  assert.equal(
+    selected.placement.ghostPreview.request.targetInstanceId,
+    target.request.targetInstanceId,
+  );
+  assert.equal(
+    selected.placement.ghostPreview.request.targetSnapId,
+    target.request.targetSnapId,
+  );
+  assert.deepEqual(
+    selected.placement.ghostPreview.transform,
+    target.transform,
+  );
+});
+
+test("rotation keeps manually selected snap target locked", () => {
+  const controller = new ConstructionPrototypeController();
+  const target = controller.snapshot().ui.targetSelection.candidates[1];
+
+  controller.selectSnapTarget(target.key);
+  const rotated = controller.rotate();
+
+  assert.equal(rotated.ui.targetSelection.locked, true);
+  assert.equal(
+    rotated.ui.targetSelection.selectedTargetKey,
+    target.key,
+  );
+  assert.equal(
+    rotated.placement.ghostPreview.request.targetInstanceId,
+    target.request.targetInstanceId,
+  );
+  assert.equal(
+    rotated.placement.ghostPreview.request.targetSnapId,
+    target.request.targetSnapId,
+  );
+  assert.equal(rotated.placement.ghostPreview.request.rotation, 90);
+});
+
+test("Place commits the manually selected target and then regenerates suggestions", () => {
+  const controller = new ConstructionPrototypeController();
+  const target = controller.snapshot().ui.targetSelection.candidates[1];
+
+  const selected = controller.selectSnapTarget(target.key);
+  const expectedTransform = selected.placement.ghostPreview.transform;
+  const placed = controller.place();
+
+  const wall = placed.construction.instances.find(
+    (instance) => instance.category === "WALL",
+  );
+
+  assert.deepEqual(wall.transform, expectedTransform);
+  assert.equal(placed.ui.targetSelection.locked, false);
+  assert.equal(placed.ui.targetSelection.selectedTargetKey, null);
+  assert.ok(placed.ui.targetSelection.candidates.length > 0);
+});
+
+test("undo clears stale manual target lock and regenerates candidates", () => {
+  const controller = new ConstructionPrototypeController();
+  const target = controller.snapshot().ui.targetSelection.candidates[1];
+
+  controller.selectSnapTarget(target.key);
+  controller.place();
+
+  const nextTarget =
+    controller.snapshot().ui.targetSelection.candidates.at(-1);
+  controller.selectSnapTarget(nextTarget.key);
+
+  const undone = controller.undo();
+
+  assert.equal(undone.ui.targetSelection.locked, false);
+  assert.equal(undone.ui.targetSelection.selectedTargetKey, null);
+  assert.ok(undone.ui.targetSelection.candidates.length >= 2);
+});
+
+test("Wolf-Test clears stale target lock and regenerates against current topology", () => {
+  const controller = new ConstructionPrototypeController();
+  controller.place();
+
+  const before = controller.snapshot();
+  const target = before.ui.targetSelection.candidates.at(-1);
+  controller.selectSnapTarget(target.key);
+
+  const after = controller.wolfTest();
+
+  assert.equal(after.ui.targetSelection.locked, false);
+  assert.equal(after.ui.targetSelection.selectedTargetKey, null);
+  assert.ok(Array.isArray(after.ui.targetSelection.candidates));
+});
