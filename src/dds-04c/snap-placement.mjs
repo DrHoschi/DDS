@@ -518,6 +518,10 @@ export class SnapPlacementFoundation {
     const occupancy = new Map();
 
     for (const connection of construction.connections) {
+      if (connection.state !== "CONNECTED") {
+        continue;
+      }
+
       const snapIdentities = this.#decodeConnectionSnapIdentities(
         connection.id,
       );
