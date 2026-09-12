@@ -173,7 +173,6 @@ function findById(items, id) {
 export class SnapPlacementFoundation {
   #constructionState;
   #profiles = new Map();
-  #occupancy = new Map();
   #ghostPreview = null;
   #history = [];
 
@@ -317,9 +316,6 @@ export class SnapPlacementFoundation {
       throw error;
     }
 
-    this.#occupancy.set(targetSnapIdentity, connectionId);
-    this.#occupancy.set(sourceSnapIdentity, connectionId);
-
     const historyEntry = {
       instanceId: candidate.request.instanceId,
       connectionId,
@@ -364,10 +360,6 @@ export class SnapPlacementFoundation {
     );
     this.#constructionState.removeModuleInstance(historyEntry.instanceId);
 
-    for (const snapId of historyEntry.occupiedSnapIds) {
-      this.#occupancy.delete(snapId);
-    }
-
     this.#history.pop();
     this.#ghostPreview = null;
 
@@ -378,9 +370,12 @@ export class SnapPlacementFoundation {
   }
 
   snapshot() {
+    const construction = this.#constructionState.snapshot();
+    const occupancy = this.#deriveCommittedOccupancy(construction);
+
     const result = {
       snapProfiles: Array.from(this.#profiles.values(), cloneProfile),
-      occupancy: Array.from(this.#occupancy.entries()).map(
+      occupancy: Array.from(occupancy.entries()).map(
         ([snapId, connectionId]) => ({ snapId, connectionId }),
       ),
       ghostPreview: cloneCandidate(this.#ghostPreview),
@@ -392,6 +387,7 @@ export class SnapPlacementFoundation {
 
   #evaluateCandidate(request) {
     const construction = this.#constructionState.snapshot();
+    const occupancy = this.#deriveCommittedOccupancy(construction);
 
     if (findById(construction.instances, request.instanceId)) {
       return this.#invalidCandidate(request, "INSTANCE_ID_IN_USE");
@@ -441,7 +437,7 @@ export class SnapPlacementFoundation {
       sourceSnap.id,
     );
 
-    if (this.#occupancy.has(targetSnapIdentity)) {
+    if (occupancy.has(targetSnapIdentity)) {
       return this.#invalidCandidate(
         request,
         "TARGET_SNAP_OCCUPIED",
@@ -506,6 +502,32 @@ export class SnapPlacementFoundation {
       targetSnapIdentity,
       transform,
     };
+  }
+
+  #deriveCommittedOccupancy(construction) {
+    const occupancy = new Map();
+
+    for (const connection of construction.connections) {
+      if (!connection.id.startsWith("connection:")) {
+        continue;
+      }
+
+      const encodedSnapPair = connection.id.slice("connection:".length);
+      const snapIdentities = encodedSnapPair.split("<->");
+
+      if (
+        snapIdentities.length !== 2 ||
+        snapIdentities.some((snapIdentity) => snapIdentity.length === 0)
+      ) {
+        continue;
+      }
+
+      for (const snapIdentity of snapIdentities) {
+        occupancy.set(snapIdentity, connection.id);
+      }
+    }
+
+    return occupancy;
   }
 
   #invalidCandidate(
