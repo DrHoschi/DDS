@@ -218,6 +218,63 @@ test("occupied target snaps reject a second placement without state mutation", (
   assert.deepEqual(constructionState.snapshot(), before);
 });
 
+
+test("reconstructed placement controller derives committed occupancy from authoritative connections", () => {
+  const { constructionState, placement } = createFoundation();
+
+  previewWall(placement);
+  placement.placePreview();
+
+  const reconstructed = new SnapPlacementFoundation({ constructionState });
+
+  reconstructed.registerSnapProfile({
+    definitionId: "def:floor",
+    allowedRotations: [0],
+    snapPoints: [
+      {
+        id: "wall-north",
+        connectionClass: "FLOOR_WALL",
+        compatibleClasses: ["WALL_BOTTOM"],
+        position: { x: 0, y: 0, z: 1 },
+        rotationY: 0,
+      },
+    ],
+  });
+
+  reconstructed.registerSnapProfile({
+    definitionId: "def:wall",
+    allowedRotations: [0, 90],
+    snapPoints: [
+      {
+        id: "bottom",
+        connectionClass: "WALL_BOTTOM",
+        compatibleClasses: ["FLOOR_WALL"],
+        position: { x: 0, y: -1, z: 0 },
+        rotationY: 180,
+      },
+    ],
+  });
+
+  assert.deepEqual(
+    reconstructed.snapshot().occupancy.map((entry) => entry.snapId).sort(),
+    ["floor:001::wall-north", "wall:001::bottom"].sort(),
+  );
+
+  const before = constructionState.snapshot();
+  const candidate = reconstructed.previewPlacement({
+    instanceId: "wall:002",
+    definitionId: "def:wall",
+    sourceSnapId: "bottom",
+    targetInstanceId: "floor:001",
+    targetSnapId: "wall-north",
+    rotation: 0,
+  });
+
+  assert.equal(candidate.valid, false);
+  assert.equal(candidate.reason, "TARGET_SNAP_OCCUPIED");
+  assert.deepEqual(constructionState.snapshot(), before);
+});
+
 test("incompatible connection classes and disallowed rotations are rejected", () => {
   const { constructionState, placement } = createFoundation();
 
