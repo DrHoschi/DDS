@@ -1,0 +1,32 @@
+{
+  "meta": {
+    "format": "asset-lab-atlas-v1",
+    "image": "05A3CB9B-C605-4F92-A8AB-A1C1ACDAE32A.png",
+    "textureKey": "atlas",
+    "generated": "2026-09-12T20:19:04.304Z"
+  },
+  "frames": {
+    "frame_000_s": {
+      "frame": {
+        "x": 290,
+        "y": 110,
+        "w": 100,
+        "h": 150
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
+    },
+    "frame_001_sw": {
+      "frame": {
+        "x": 415,
+        "y": 110,
+        "w": 100,
+        "h": 150
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
+    }
+  }
+}
