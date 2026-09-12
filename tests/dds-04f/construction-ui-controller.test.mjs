@@ -50,6 +50,7 @@ test("valid UI placement commits through DDS-04C and assigns selected material",
   assert.equal(placed.construction.instances.length, 2);
   assert.equal(placed.construction.connections.length, 1);
   assert.equal(placed.placement.historyDepth, 1);
+  assert.match(placed.ui.status, /platziert/);
 
   const wall = placed.construction.instances.find(
     (instance) => instance.category === "WALL",
@@ -134,6 +135,7 @@ test("Wolf-Test projects authoritative DDS-04E detach and displacement", () => {
   );
 
   assert.ok(after.lastWolfResult);
+  assert.match(after.ui.status, /Wolf-Test/);
   assert.equal(after.lastWolfResult.failedConnectionIds.length, 1);
   assert.equal(after.construction.connections.length, 0);
   assert.equal(wallAfter.placementState, "DETACHED");
