@@ -238,9 +238,12 @@ export class SnapPlacementFoundation {
   }
 
   snapIdentity(instanceId, snapPointId) {
-    return `${assertString(instanceId, "instanceId")}::${assertString(
-      snapPointId,
-      "snapPointId",
+    const normalizedInstanceId = assertString(instanceId, "instanceId");
+    const normalizedSnapPointId = assertString(snapPointId, "snapPointId");
+    const encode = (value) => `${value.length}:${value}`;
+
+    return `snap:v2:${encode(normalizedInstanceId)}${encode(
+      normalizedSnapPointId,
     )}`;
   }
 
@@ -432,12 +435,19 @@ export class SnapPlacementFoundation {
       targetInstance.id,
       targetSnap.id,
     );
+    const targetLegacySnapIdentity = this.#legacySnapIdentity(
+      targetInstance.id,
+      targetSnap.id,
+    );
     const sourceSnapIdentity = this.snapIdentity(
       request.instanceId,
       sourceSnap.id,
     );
 
-    if (occupancy.has(targetSnapIdentity)) {
+    if (
+      occupancy.has(targetSnapIdentity) ||
+      occupancy.has(targetLegacySnapIdentity)
+    ) {
       return this.#invalidCandidate(
         request,
         "TARGET_SNAP_OCCUPIED",
@@ -579,6 +589,10 @@ export class SnapPlacementFoundation {
     }
 
     return legacySnapIdentities;
+  }
+
+  #legacySnapIdentity(instanceId, snapPointId) {
+    return `${instanceId}::${snapPointId}`;
   }
 
   #invalidCandidate(
