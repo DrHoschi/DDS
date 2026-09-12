@@ -68,9 +68,23 @@ function deepFreeze(value) {
   return value;
 }
 
+function cloneData(value) {
+  if (Array.isArray(value)) {
+    return value.map(cloneData);
+  }
+
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, child]) => [key, cloneData(child)]),
+    );
+  }
+
+  return value;
+}
+
 function cloneCandidate(candidate) {
   if (!candidate) return null;
-  return structuredClone(candidate);
+  return cloneData(candidate);
 }
 
 function cloneProfile(profile) {
@@ -317,7 +331,7 @@ export class SnapPlacementFoundation {
     return deepFreeze({
       instanceId: historyEntry.instanceId,
       connectionId,
-      transform: structuredClone(candidate.transform),
+      transform: cloneData(candidate.transform),
       occupiedSnapIds: [...historyEntry.occupiedSnapIds],
     });
   }
