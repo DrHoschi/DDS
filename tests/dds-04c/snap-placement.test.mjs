@@ -365,12 +365,25 @@ test("undo refuses to corrupt state when the latest module has unexpected extra 
   });
   placement.placePreview();
 
+  constructionState.addModuleInstance({
+    id: "external:001",
+    definitionId: "def:wall",
+    placementState: "EXTERNAL_TEST",
+  });
+  constructionState.addConnectionReference({
+    id: "connection:external",
+    moduleAId: "corner:001",
+    moduleBId: "external:001",
+    state: "EXTERNAL_TEST",
+  });
+
+  const before = constructionState.snapshot();
+
   assert.throws(
     () => placement.undoLastPlacement(),
     /unexpected connection state/,
   );
 
-  const construction = constructionState.snapshot();
-  assert.equal(construction.instances.length, 3);
-  assert.equal(construction.connections.length, 2);
+  assert.deepEqual(constructionState.snapshot(), before);
+  assert.equal(placement.snapshot().historyDepth, 2);
 });
