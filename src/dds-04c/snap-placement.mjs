@@ -508,17 +508,11 @@ export class SnapPlacementFoundation {
     const occupancy = new Map();
 
     for (const connection of construction.connections) {
-      if (!connection.id.startsWith("connection:")) {
-        continue;
-      }
+      const snapIdentities = this.#decodeConnectionSnapIdentities(
+        connection.id,
+      );
 
-      const encodedSnapPair = connection.id.slice("connection:".length);
-      const snapIdentities = encodedSnapPair.split("<->");
-
-      if (
-        snapIdentities.length !== 2 ||
-        snapIdentities.some((snapIdentity) => snapIdentity.length === 0)
-      ) {
+      if (!snapIdentities) {
         continue;
       }
 
@@ -528,6 +522,63 @@ export class SnapPlacementFoundation {
     }
 
     return occupancy;
+  }
+
+  #decodeConnectionSnapIdentities(connectionId) {
+    const versionedPrefix = "connection:v2:";
+
+    if (connectionId.startsWith(versionedPrefix)) {
+      let cursor = versionedPrefix.length;
+      const snapIdentities = [];
+
+      for (let index = 0; index < 2; index += 1) {
+        const separatorIndex = connectionId.indexOf(":", cursor);
+        if (separatorIndex === -1) {
+          return null;
+        }
+
+        const lengthText = connectionId.slice(cursor, separatorIndex);
+        if (!/^(0|[1-9]\\d*)$/.test(lengthText)) {
+          return null;
+        }
+
+        const length = Number(lengthText);
+        cursor = separatorIndex + 1;
+
+        const snapIdentity = connectionId.slice(cursor, cursor + length);
+        if (snapIdentity.length !== length || snapIdentity.length === 0) {
+          return null;
+        }
+
+        snapIdentities.push(snapIdentity);
+        cursor += length;
+      }
+
+      if (cursor !== connectionId.length) {
+        return null;
+      }
+
+      return snapIdentities;
+    }
+
+    const legacyPrefix = "connection:";
+    if (!connectionId.startsWith(legacyPrefix)) {
+      return null;
+    }
+
+    const legacyPayload = connectionId.slice(legacyPrefix.length);
+    const legacySnapIdentities = legacyPayload.split("<->");
+
+    if (
+      legacySnapIdentities.length !== 2 ||
+      legacySnapIdentities.some(
+        (snapIdentity) => snapIdentity.length === 0,
+      )
+    ) {
+      return null;
+    }
+
+    return legacySnapIdentities;
   }
 
   #invalidCandidate(
@@ -548,6 +599,9 @@ export class SnapPlacementFoundation {
 
   #connectionIdentity(sourceSnapIdentity, targetSnapIdentity) {
     const pair = [sourceSnapIdentity, targetSnapIdentity].sort();
-    return `connection:${pair[0]}<->${pair[1]}`;
+    const encode = (snapIdentity) =>
+      `${snapIdentity.length}:${snapIdentity}`;
+
+    return `connection:v2:${encode(pair[0])}${encode(pair[1])}`;
   }
 }
