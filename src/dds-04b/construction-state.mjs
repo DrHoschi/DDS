@@ -218,12 +218,10 @@ export class ConstructionState {
       "instance.connectionRefs",
     );
 
-    for (const connectionId of normalizedConnectionRefs) {
-      if (!this.#connections.has(connectionId)) {
-        throw new Error(
-          `Unknown connection reference on module instance: ${connectionId}`,
-        );
-      }
+    if (normalizedConnectionRefs.length > 0) {
+      throw new Error(
+        "Module connectionRefs cannot be seeded directly; create connections through addConnectionReference()",
+      );
     }
 
     const instance = {
