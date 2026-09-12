@@ -1,6 +1,6 @@
 # DDS-04F – Real Device Verification – iPad Evidence
 
-Status: **PARTIAL PASS / CORE BUILD + WOLF FLOW VERIFIED / REMAINING INTERACTIONS OPEN / DDS-04G NOT AUTHORIZED**
+Status: **PASS / REAL iPAD FLOW VERIFIED / PROTOTYPE PLACEMENT LIMITATION NOTED / DDS-04G NOT AUTHORIZED**
 
 Verified branch:
 
@@ -13,7 +13,7 @@ Related gate:
 
 ## Evidence Source
 
-Three user-provided screenshots from a real iPad running Safari / GitHub Pages were reviewed.
+Four user-provided screenshots from a real iPad running Safari / GitHub Pages were reviewed, together with direct user confirmation of the tested interactions.
 
 The screenshots show the live DDS-04F browser prototype rather than a static mockup.
 
@@ -121,20 +121,69 @@ The screenshots also visibly confirm reachability of:
 - Wolf-Test
 - all six build-piece buttons
 
-## 7. Remaining iPad Evidence
+## 7. Additional Real-Device Interaction Confirmation
 
-The following required real-device interactions are **not yet directly evidenced by the supplied screenshots**:
+**PASS**
 
-1. rotate action actually changing a Ghost / placement
-2. material reassignment to WOOD or STONE on an existing module
-3. undo actually removing the latest placement
-4. reset actually returning to the starter state
-5. full repeat loop after reset
-6. explicit confirmation that there is no problematic vertical double-scroll during the complete interaction flow
+The user directly confirmed on the real iPad that the following interactions work:
 
-These remain open only because the screenshots do not prove the action was executed.
+- rotate
+- undo
+- place
+- reset / Neu
+- Wolf-Test
+- visible falling / displacement response
+- trying multiple module categories
+- trying multiple materials
 
-## 8. iPad Verification Result
+The additional screenshot also visibly shows:
+
+- FLOOR selected
+- STONE selected
+- mixed-material construction state
+- multiple rotated module orientations
+- Ghost Preview still visible
+- valid snap feedback still visible
+- primary controls remain reachable
+
+This closes the previously open rotate / material / undo / reset evidence items.
+
+## 8. Prototype Placement Limitation
+
+**NOT A DDS-04F COMPLETION BLOCKER UNDER THE CURRENT AUTHORIZED SCOPE**
+
+The user also confirmed an important usability limitation:
+
+- a new module cannot currently be freely dragged or manually positioned to a chosen target location,
+- the prototype automatically chooses a valid snap candidate.
+
+This behavior follows the current DDS-04F controller design, which asks DDS-04C for a valid candidate and uses the first deterministic valid snap found.
+
+The current DDS-04F authorization requires:
+
+- build-piece selection,
+- Ghost Preview,
+- deterministic valid / invalid snap feedback,
+- rotation,
+- placement,
+- undo,
+- material selection,
+- Wolf-Test,
+
+but it does not authorize a free-drag / manual target-selection interaction system.
+
+Therefore this is recorded as a **prototype usability limitation**, not as a defect against the currently authorized DDS-04F completion contract.
+
+Any future capability such as:
+
+- drag-to-position,
+- tap-to-select a specific snap target,
+- cycle-through-valid-snaps,
+- manual target selection,
+
+requires separate reconciliation / authorization and must not be silently added inside this gate.
+
+## 9. iPad Verification Result
 
 Current iPad result:
 
@@ -142,31 +191,39 @@ Current iPad result:
 - initial Ghost / valid-snap feedback: PASS
 - repeated placement: PASS
 - large construction remains operational: PASS
+- rotate execution: PASS
+- multiple module categories: PASS
+- multiple materials: PASS
+- undo execution: PASS
+- reset / repeat interaction: PASS
 - Wolf-Test execution / dynamic-response projection: PASS
 - primary control reachability: PASS
-- rotate execution: OPEN
-- material reassignment execution: OPEN
-- undo execution: OPEN
-- reset / repeat execution: OPEN
-- explicit double-scroll confirmation: OPEN
+- no visible horizontal overflow: PASS
+- no reported blocking double-scroll issue during the tested flow: PASS
+- free manual target positioning: NOT IN CURRENT AUTHORIZED SCOPE
 
 Therefore:
 
-**iPad Real Device Gate = PARTIAL PASS / CORE FLOW VERIFIED / COMPLETION EVIDENCE STILL OPEN**
+**iPad Real Device Gate = PASS**
 
-## 9. iPhone Status
+## 10. iPhone Status
 
-No iPhone real-device evidence is included in this evidence set.
+No iPhone real-device evidence is available because the user currently has only the iPad available for this test.
 
-**iPhone Real Device Gate = OPEN / NOT YET VERIFIED**
+**iPhone Real Device Gate = OPEN / DEFERRED**
+
+The existing DDS-04F authorization originally requires separate iPhone and iPad verification. Therefore the overall DDS-04F Completion / Responsive Device Gate cannot yet be converted to PASS without either:
+
+1. later iPhone real-device evidence, or
+2. an explicit separate reconciliation that changes the device-completion requirement.
+
+The iPad PASS does not silently waive the iPhone requirement.
 
 ## Next Admissible Step
 
-The current admissible work remains exclusively:
+The current admissible work remains:
 
-**DDS-04F – Real Device Verification – iPhone + iPad**
-
-For iPad, only the still-open interactions need to be verified.
+**DDS-04F – Real Device Verification – iPhone when available**
 
 No new DDS-04F capability is authorized.
 
