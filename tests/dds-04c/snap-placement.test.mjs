@@ -129,7 +129,7 @@ test("snap profiles expose stable explicit identities and data-driven compatibil
 
   assert.equal(
     placement.snapIdentity("floor:001", "wall-north"),
-    "floor:001::wall-north",
+    "snap:v2:9:floor:00110:wall-north",
   );
   assert.equal(snapshot.snapProfiles.length, 4);
 
@@ -196,7 +196,10 @@ test("valid placement creates authoritative module connection and snap occupancy
 
   assert.deepEqual(
     snapState.occupancy.map((entry) => entry.snapId).sort(),
-    ["floor:001::wall-north", "wall:001::bottom"].sort(),
+    [
+      placement.snapIdentity("floor:001", "wall-north"),
+      placement.snapIdentity("wall:001", "bottom"),
+    ].sort(),
   );
   assert.equal(snapState.ghostPreview, null);
   assert.equal(snapState.historyDepth, 1);
@@ -257,7 +260,10 @@ test("reconstructed placement controller derives committed occupancy from author
 
   assert.deepEqual(
     reconstructed.snapshot().occupancy.map((entry) => entry.snapId).sort(),
-    ["floor:001::wall-north", "wall:001::bottom"].sort(),
+    [
+      placement.snapIdentity("floor:001", "wall-north"),
+      placement.snapIdentity("wall:001", "bottom"),
+    ].sort(),
   );
 
   const before = constructionState.snapshot();
@@ -551,8 +557,11 @@ test("occupancy reconstruction remains unambiguous when ids contain the former s
     assert.deepEqual(
       reconstructed.snapshot().occupancy.map((entry) => entry.snapId).sort(),
       [
-        `${scenario.floorInstanceId}::${scenario.floorSnapId}`,
-        "wall:001::bottom",
+        reconstructed.snapIdentity(
+          scenario.floorInstanceId,
+          scenario.floorSnapId,
+        ),
+        reconstructed.snapIdentity("wall:001", "bottom"),
       ].sort(),
     );
 
@@ -571,4 +580,27 @@ test("occupancy reconstruction remains unambiguous when ids contain the former s
     assert.equal(candidate.reason, "TARGET_SNAP_OCCUPIED");
     assert.deepEqual(constructionState.snapshot(), before);
   }
+});
+
+
+test("snap identity composition is injective when instance and snap ids contain double-colon", () => {
+  const constructionState = new ConstructionState();
+
+  constructionState.registerModuleDefinition({
+    id: "def:a",
+    category: "FLOOR",
+  });
+  constructionState.registerModuleDefinition({
+    id: "def:b",
+    category: "FLOOR",
+  });
+
+  const placement = new SnapPlacementFoundation({ constructionState });
+
+  const first = placement.snapIdentity("a::b", "c");
+  const second = placement.snapIdentity("a", "b::c");
+
+  assert.notEqual(first, second);
+  assert.equal(first, "snap:v2:4:a::b1:c");
+  assert.equal(second, "snap:v2:1:a4:b::c");
 });
