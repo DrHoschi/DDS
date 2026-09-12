@@ -130,7 +130,10 @@ function buildAdjacency(construction, excludedConnectionIds) {
   );
 
   for (const connection of construction.connections) {
-    if (excludedConnectionIds.has(connection.id)) {
+    if (
+      excludedConnectionIds.has(connection.id) ||
+      connection.state !== "CONNECTED"
+    ) {
       continue;
     }
 
