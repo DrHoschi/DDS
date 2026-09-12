@@ -29,6 +29,14 @@ const DEFINITION_IDS = Object.freeze(
 
 const ROTATIONS = Object.freeze([0, 90, 180, 270]);
 
+function targetChoiceKey(request) {
+  return JSON.stringify([
+    request.sourceSnapId,
+    request.targetInstanceId,
+    request.targetSnapId,
+  ]);
+}
+
 function clone(value) {
   if (Array.isArray(value)) {
     return value.map(clone);
@@ -272,6 +280,10 @@ export class ConstructionPrototypeController {
   #nextInstanceNumber = 1;
   #status = "Bauteil wählen und losbauen.";
   #lastWolfResult = null;
+  #targetCandidates = [];
+  #recommendedTargetKey = null;
+  #selectedTargetKey = null;
+  #selectedTargetRequest = null;
 
   constructor() {
     this.#constructionState = new ConstructionState();
@@ -288,6 +300,7 @@ export class ConstructionPrototypeController {
 
     this.#selectedPiece = category;
     this.#rotation = 0;
+    this.#clearTargetSelection();
     this.#status = `${PIECE_LABELS[category]} gewählt.`;
     this.#refreshPreview();
     return this.snapshot();
@@ -298,6 +311,30 @@ export class ConstructionPrototypeController {
     this.#rotation = ROTATIONS[(currentIndex + 1) % ROTATIONS.length];
     this.#status = `Gedreht: ${this.#rotation}°`;
     this.#refreshPreview();
+    return this.snapshot();
+  }
+
+  selectSnapTarget(targetKey) {
+    const target = this.#targetCandidates.find(
+      (candidate) => candidate.key === targetKey,
+    );
+
+    if (!target) {
+      throw new Error(`Unknown or unavailable DDS-04F snap target: ${targetKey}`);
+    }
+
+    this.#selectedTargetKey = target.key;
+    this.#selectedTargetRequest = { ...target.request };
+
+    const selected = this.#placement.previewPlacement({
+      ...target.request,
+      rotation: this.#rotation,
+    });
+
+    this.#status = selected.valid
+      ? "Bauplatz gewählt ✓"
+      : messageForInvalid(selected.reason);
+
     return this.snapshot();
   }
 
@@ -315,6 +352,7 @@ export class ConstructionPrototypeController {
     );
     this.#selectedInstanceId = committed.instanceId;
     this.#nextInstanceNumber += 1;
+    this.#clearTargetSelection();
     const placedStatus =
       `${PIECE_LABELS[this.#selectedPiece]} platziert ✓`;
     this.#lastWolfResult = null;
@@ -331,6 +369,7 @@ export class ConstructionPrototypeController {
         this.#selectedInstanceId = null;
       }
       this.#lastWolfResult = null;
+      this.#clearTargetSelection();
       this.#refreshPreview();
       this.#status = "Letzte Platzierung rückgängig ✓";
       return this.snapshot();
@@ -350,6 +389,7 @@ export class ConstructionPrototypeController {
     this.#rotation = 0;
     this.#nextInstanceNumber = 1;
     this.#lastWolfResult = null;
+    this.#clearTargetSelection();
     this.#addStarterFloor();
     this.#refreshPreview();
     this.#status = "Neu gestartet. Der Startboden ist bereit.";
@@ -412,6 +452,7 @@ export class ConstructionPrototypeController {
         : "Wolf-Test: Das Haus hält!";
 
     this.#selectedInstanceId = null;
+    this.#clearTargetSelection();
     this.#refreshPreview();
     this.#status = wolfStatus;
     return this.snapshot();
@@ -436,6 +477,12 @@ export class ConstructionPrototypeController {
         selectedInstanceId: this.#selectedInstanceId,
         rotation: this.#rotation,
         status: this.#status,
+        targetSelection: {
+          recommendedTargetKey: this.#recommendedTargetKey,
+          selectedTargetKey: this.#selectedTargetKey,
+          locked: this.#selectedTargetKey !== null,
+          candidates: clone(this.#targetCandidates),
+        },
       },
       construction: clone(construction),
       placement: clone(placement),
@@ -494,6 +541,13 @@ export class ConstructionPrototypeController {
     this.#selectedInstanceId = starterId;
   }
 
+  #clearTargetSelection() {
+    this.#targetCandidates = [];
+    this.#recommendedTargetKey = null;
+    this.#selectedTargetKey = null;
+    this.#selectedTargetRequest = null;
+  }
+
   #refreshPreview() {
     const construction = this.#constructionState.snapshot();
     const placementState = this.#placement.snapshot();
@@ -502,13 +556,17 @@ export class ConstructionPrototypeController {
         profile.definitionId === definitionId(this.#selectedPiece),
     );
 
+    this.#targetCandidates = [];
+    this.#recommendedTargetKey = null;
+
     if (!sourceProfile) {
       this.#placement.clearPreview();
       this.#status = "Für dieses Teil fehlt ein Snap-Profil.";
       return;
     }
 
-    const incomingInstanceId = `ui:${this.#selectedPiece.toLowerCase()}:${this.#nextInstanceNumber}`;
+    const incomingInstanceId =
+      `ui:${this.#selectedPiece.toLowerCase()}:${this.#nextInstanceNumber}`;
     let lastInvalid = null;
 
     for (const targetInstance of construction.instances) {
@@ -527,23 +585,67 @@ export class ConstructionPrototypeController {
 
       for (const sourceSnap of sourceProfile.snapPoints) {
         for (const targetSnap of targetProfile.snapPoints) {
-          const candidate = this.#placement.previewPlacement({
+          const request = {
             instanceId: incomingInstanceId,
             definitionId: definitionId(this.#selectedPiece),
             sourceSnapId: sourceSnap.id,
             targetInstanceId: targetInstance.id,
             targetSnapId: targetSnap.id,
             rotation: this.#rotation,
-          });
+          };
+
+          const candidate = this.#placement.previewPlacement(request);
 
           if (candidate.valid) {
-            this.#status = `${PIECE_LABELS[this.#selectedPiece]} kann hier einrasten ✓`;
-            return;
+            const key = targetChoiceKey(request);
+            this.#targetCandidates.push({
+              key,
+              request: { ...request },
+              transform: clone(candidate.transform),
+              targetInstanceId: targetInstance.id,
+              targetSnapId: targetSnap.id,
+              sourceSnapId: sourceSnap.id,
+            });
+          } else {
+            lastInvalid = candidate;
           }
-
-          lastInvalid = candidate;
         }
       }
+    }
+
+    this.#recommendedTargetKey =
+      this.#targetCandidates[0]?.key ?? null;
+
+    if (this.#selectedTargetRequest) {
+      const lockedRequest = {
+        ...this.#selectedTargetRequest,
+        instanceId: incomingInstanceId,
+        definitionId: definitionId(this.#selectedPiece),
+        rotation: this.#rotation,
+      };
+      const lockedCandidate =
+        this.#placement.previewPlacement(lockedRequest);
+
+      this.#selectedTargetRequest = {
+        ...lockedRequest,
+      };
+      this.#selectedTargetKey = targetChoiceKey(lockedRequest);
+
+      if (lockedCandidate.valid) {
+        this.#status =
+          `${PIECE_LABELS[this.#selectedPiece]} bleibt am gewählten Bauplatz ✓`;
+      } else {
+        this.#status = messageForInvalid(lockedCandidate.reason);
+      }
+      return;
+    }
+
+    const recommended = this.#targetCandidates[0];
+    if (recommended) {
+      this.#placement.previewPlacement(recommended.request);
+      this.#status =
+        `${PIECE_LABELS[this.#selectedPiece]} kann hier einrasten ✓`;
+      return;
     }
 
     if (!lastInvalid) {
@@ -552,6 +654,7 @@ export class ConstructionPrototypeController {
       return;
     }
 
+    this.#placement.previewPlacement(lastInvalid.request);
     this.#status = messageForInvalid(lastInvalid.reason);
   }
 }
