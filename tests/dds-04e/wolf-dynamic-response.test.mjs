@@ -498,3 +498,117 @@ test("failure detaches unsupported connected component but preserves floor-ancho
     "DETACHED",
   );
 });
+
+
+test("pre-existing FAILED connection does not anchor detached support component", () => {
+  const constructionState = new ConstructionState();
+
+  constructionState.registerModuleDefinition({
+    id: "def:floor",
+    category: "FLOOR",
+  });
+  constructionState.registerModuleDefinition({
+    id: "def:wall",
+    category: "WALL",
+  });
+
+  constructionState.addModuleInstance({
+    id: "floor:001",
+    definitionId: "def:floor",
+    placementState: "PLACED",
+    materialRef: "STRAW",
+    transform: {
+      position: { x: 0, y: 0, z: 0 },
+      rotation: { x: 0, y: 0, z: 0 },
+      scale: { x: 1, y: 1, z: 1 },
+    },
+  });
+  constructionState.addModuleInstance({
+    id: "wall:001",
+    definitionId: "def:wall",
+    placementState: "PLACED",
+    materialRef: "STRAW",
+    transform: {
+      position: { x: 1, y: 0, z: 0 },
+      rotation: { x: 0, y: 0, z: 0 },
+      scale: { x: 1, y: 1, z: 1 },
+    },
+  });
+  constructionState.addModuleInstance({
+    id: "wall:002",
+    definitionId: "def:wall",
+    placementState: "PLACED",
+    materialRef: "STRAW",
+    transform: {
+      position: { x: 2, y: 0, z: 0 },
+      rotation: { x: 0, y: 0, z: 0 },
+      scale: { x: 1, y: 1, z: 1 },
+    },
+  });
+
+  constructionState.addConnectionReference({
+    id: "connection:base",
+    moduleAId: "floor:001",
+    moduleBId: "wall:001",
+    state: "FAILED",
+  });
+  constructionState.addConnectionReference({
+    id: "connection:upper",
+    moduleAId: "wall:001",
+    moduleBId: "wall:002",
+    state: "CONNECTED",
+  });
+
+  const response = new WolfDynamicResponseFoundation({
+    constructionState,
+  });
+
+  const result = response.apply({
+    source: { x: 0, y: 0, z: 0 },
+    direction: { x: 1, y: 0, z: 0 },
+    strength: 5,
+    maxDistance: 10,
+  });
+
+  const baseEvaluation = result.evaluations.find(
+    (evaluation) => evaluation.connectionId === "connection:base",
+  );
+  const upperEvaluation = result.evaluations.find(
+    (evaluation) => evaluation.connectionId === "connection:upper",
+  );
+
+  assert.equal(baseEvaluation.outcome, "SURVIVE");
+  assert.equal(baseEvaluation.reason, "CONNECTION_NOT_ACTIVE");
+  assert.equal(upperEvaluation.outcome, "FAIL");
+
+  assert.deepEqual(
+    [...result.detachedModuleIds].sort(),
+    ["wall:001", "wall:002"],
+  );
+
+  const after = constructionState.snapshot();
+
+  assert.deepEqual(
+    after.connections.map((connection) => ({
+      id: connection.id,
+      state: connection.state,
+    })),
+    [{ id: "connection:base", state: "FAILED" }],
+  );
+
+  assert.equal(
+    after.instances.find((instance) => instance.id === "floor:001")
+      .placementState,
+    "PLACED",
+  );
+  assert.equal(
+    after.instances.find((instance) => instance.id === "wall:001")
+      .placementState,
+    "DETACHED",
+  );
+  assert.equal(
+    after.instances.find((instance) => instance.id === "wall:002")
+      .placementState,
+    "DETACHED",
+  );
+});
