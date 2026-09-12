@@ -41,3 +41,10 @@ DDS-00 freezes:
 DDS-00 does **not** freeze future animation, rigging, modeling, scene, story, gameplay, rendering, or production decisions.
 
 Any work above this foundation must begin as a separate explicitly scoped DDS block.
+
+
+## Future Game Concept Notes
+
+The following gameplay concept is recorded for future work only and does not alter the current Film ↔ Game decision or authorize implementation:
+
+- [DDS – Construction Prototype Game Concept](docs/DDS-GAME-CONSTRUCTION-PROTOTYPE-CONCEPT.md) — child-friendly modular house building, snap placement, Stroh/Holz/Stein material behavior, simplified stability, and a dynamic Wolf-Test.
