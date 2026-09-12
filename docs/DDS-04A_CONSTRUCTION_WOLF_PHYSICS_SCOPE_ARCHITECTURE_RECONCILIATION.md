@@ -241,7 +241,7 @@ The following remain outside DDS-04:
 - final cinematic presentation,
 - mass production of character assets.
 
-Those topics remain governed by DDS-03A or by a later explicitly authorized block.
+DDS-03A governs only its contracted character-feasibility evidence and reusable-character route validation. Final production assets, character integration, animation pipelines, gameplay movement, character AI, cinematic work and mass production require separate later authorization.
 
 ## Also Outside DDS-04A
 
@@ -275,7 +275,7 @@ Any later DDS-04 implementation should preserve these principles:
 6. **Physics / collapse result is derived from construction state and force input.**
 7. **Rendering is not the authority for structural state.**
 8. **Placeholder geometry must be replaceable without rewriting the construction rules.**
-9. **DDS-03A can later supply final reusable character assets without DDS-04 redesign.**
+9. **DDS-04 must accept a reusable-character route or feasibility asset proven by DDS-03A without redesign; any final production character asset requires separate later authorization.**
 10. **No DDS-04 result may silently redefine frozen DDS character identity.**
 
 ## Minimal Future Proof of Concept Boundary
