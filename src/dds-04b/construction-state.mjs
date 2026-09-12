@@ -309,6 +309,44 @@ export class ConstructionState {
     return deepFreeze(cloneConnection(connection));
   }
 
+  removeConnectionReference(connectionId) {
+    const normalizedId = assertNonEmptyString(connectionId, "connection.id");
+    const connection = this.#connections.get(normalizedId);
+
+    if (!connection) {
+      throw new Error(`Unknown connection id: ${normalizedId}`);
+    }
+
+    for (const moduleId of connection.moduleRefs) {
+      const instance = this.#instances.get(moduleId);
+      if (!instance) {
+        throw new Error(
+          `Connection ${normalizedId} references unknown module instance: ${moduleId}`,
+        );
+      }
+
+      instance.connectionRefs = instance.connectionRefs.filter(
+        (referenceId) => referenceId !== normalizedId,
+      );
+    }
+
+    this.#connections.delete(normalizedId);
+    return deepFreeze(cloneConnection(connection));
+  }
+
+  removeModuleInstance(instanceId) {
+    const instance = this.#requireInstance(instanceId);
+
+    if (instance.connectionRefs.length > 0) {
+      throw new Error(
+        `Cannot remove connected module instance: ${instance.id}`,
+      );
+    }
+
+    this.#instances.delete(instance.id);
+    return deepFreeze(cloneInstance(instance));
+  }
+
   resetConstruction() {
     this.#instances.clear();
     this.#connections.clear();
