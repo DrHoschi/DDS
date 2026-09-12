@@ -256,3 +256,48 @@ test("transform and state mutation remain generic data operations only", () => {
   assert.equal(snapshot.instances[0].transform.rotation.y, 45);
   assert.equal(snapshot.instances[0].placementState, "STORED");
 });
+
+
+test("module instances cannot seed connectionRefs that contradict authoritative connections", () => {
+  const state = new ConstructionState();
+
+  state.registerModuleDefinition({
+    id: "module:def:wall.basic",
+    category: "WALL",
+  });
+
+  state.addModuleInstance({
+    id: "module:instance:a",
+    definitionId: "module:def:wall.basic",
+  });
+  state.addModuleInstance({
+    id: "module:instance:b",
+    definitionId: "module:def:wall.basic",
+  });
+
+  state.addConnectionReference({
+    id: "connection:ab",
+    moduleAId: "module:instance:a",
+    moduleBId: "module:instance:b",
+  });
+
+  assert.throws(
+    () =>
+      state.addModuleInstance({
+        id: "module:instance:c",
+        definitionId: "module:def:wall.basic",
+        connectionRefs: ["connection:ab"],
+      }),
+    /cannot be seeded directly/,
+  );
+
+  const snapshot = state.snapshot();
+  assert.deepEqual(
+    snapshot.instances.map((instance) => instance.id),
+    ["module:instance:a", "module:instance:b"],
+  );
+  assert.deepEqual(snapshot.connections[0].moduleRefs, [
+    "module:instance:a",
+    "module:instance:b",
+  ]);
+});
