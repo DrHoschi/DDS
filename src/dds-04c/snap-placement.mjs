@@ -538,7 +538,7 @@ export class SnapPlacementFoundation {
         }
 
         const lengthText = connectionId.slice(cursor, separatorIndex);
-        if (!/^(0|[1-9]\\d*)$/.test(lengthText)) {
+        if (!/^(0|[1-9]\d*)$/.test(lengthText)) {
           return null;
         }
 
