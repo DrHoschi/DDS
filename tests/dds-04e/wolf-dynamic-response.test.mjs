@@ -648,3 +648,48 @@ test("FAILED DDS-04C connection releases snap occupancy for replacement placemen
   assert.equal(replacement.valid, true);
   assert.equal(replacement.reason, "VALID");
 });
+
+
+test("pre-existing FAILED-only support reconciles to DETACHED without new failure", () => {
+  const fixture = createSingleWall("STRAW");
+  const connectionId =
+    fixture.constructionState.snapshot().connections[0].id;
+
+  fixture.constructionState.setConnectionState(
+    connectionId,
+    "FAILED",
+  );
+
+  const before = fixture.constructionState
+    .snapshot()
+    .instances.find((instance) => instance.id === "wall:001");
+
+  const result = fixture.response.apply(
+    wolfForce({ strength: 0 }),
+  );
+
+  assert.equal(result.failedConnectionIds.length, 0);
+  assert.deepEqual(result.detachedModuleIds, ["wall:001"]);
+  assert.equal(result.stateChanged, true);
+
+  const after = fixture.constructionState
+    .snapshot()
+    .instances.find((instance) => instance.id === "wall:001");
+
+  assert.equal(after.placementState, "DETACHED");
+  assert.ok(after.transform.position.y < before.transform.position.y);
+
+  const second = fixture.response.apply(
+    wolfForce({ strength: 0 }),
+  );
+
+  assert.deepEqual(second.detachedModuleIds, []);
+  assert.equal(second.stateChanged, false);
+  assert.deepEqual(
+    fixture.constructionState
+      .snapshot()
+      .instances.find((instance) => instance.id === "wall:001")
+      .transform,
+    after.transform,
+  );
+});
