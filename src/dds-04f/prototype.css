@@ -276,6 +276,50 @@ button {
   background: rgba(255, 157, 157, 0.55);
 }
 
+.snap-target {
+  appearance: none;
+  position: absolute;
+  z-index: 4;
+  width: 48px;
+  height: 48px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 3px solid #ffffff;
+  background: rgba(66, 184, 103, 0.9);
+  color: #ffffff;
+  box-shadow:
+    0 0 0 3px rgba(51, 143, 81, 0.38),
+    0 6px 14px rgba(37, 66, 45, 0.22);
+  display: grid;
+  place-items: center;
+  font-size: 1.3rem;
+  font-weight: 900;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.snap-target.is-recommended {
+  background: #4b9ee8;
+  box-shadow:
+    0 0 0 3px rgba(75, 158, 232, 0.34),
+    0 6px 14px rgba(37, 66, 90, 0.22);
+}
+
+.snap-target.is-selected {
+  width: 56px;
+  height: 56px;
+  background: #6d50c7;
+  box-shadow:
+    0 0 0 4px rgba(109, 80, 199, 0.28),
+    0 0 0 8px rgba(255, 255, 255, 0.8),
+    0 8px 18px rgba(58, 39, 112, 0.26);
+}
+
+.snap-target:focus-visible {
+  outline: 4px solid #1f5f9c;
+  outline-offset: 3px;
+}
+
 .snap-marker {
   position: absolute;
   right: 14px;
@@ -603,6 +647,16 @@ button {
   .control-button {
     border-radius: 12px;
     padding: 6px 5px;
+  }
+
+  .snap-target {
+    width: 46px;
+    height: 46px;
+  }
+
+  .snap-target.is-selected {
+    width: 54px;
+    height: 54px;
   }
 
   .stability {
