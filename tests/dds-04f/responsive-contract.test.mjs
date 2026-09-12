@@ -63,3 +63,14 @@ test("responsive CSS contains distinct iPhone and iPad layout contracts", () => 
 test("prototype styling does not require hover for core controls", () => {
   assert.doesNotMatch(css, /:hover/);
 });
+
+
+test("manual snap target markers are touch-sized and visible without hover", () => {
+  assert.match(css, /\.snap-target\s*\{/);
+  assert.match(css, /\.snap-target[\s\S]*width:\s*48px/);
+  assert.match(css, /\.snap-target[\s\S]*height:\s*48px/);
+  assert.match(css, /\.snap-target[\s\S]*touch-action:\s*manipulation/);
+  assert.match(css, /\.snap-target\.is-recommended/);
+  assert.match(css, /\.snap-target\.is-selected/);
+  assert.doesNotMatch(css, /\.snap-target:hover/);
+});
