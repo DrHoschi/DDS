@@ -444,3 +444,131 @@ test("undo refuses to corrupt state when the latest module has unexpected extra 
   assert.deepEqual(constructionState.snapshot(), before);
   assert.equal(placement.snapshot().historyDepth, 2);
 });
+
+
+test("occupancy reconstruction remains unambiguous when ids contain the former separator", () => {
+  for (const scenario of [
+    {
+      floorInstanceId: "floor<->001",
+      floorSnapId: "wall-north",
+    },
+    {
+      floorInstanceId: "floor:001",
+      floorSnapId: "wall<->north",
+    },
+  ]) {
+    const constructionState = new ConstructionState();
+
+    constructionState.registerModuleDefinition({
+      id: "def:floor",
+      category: "FLOOR",
+    });
+    constructionState.registerModuleDefinition({
+      id: "def:wall",
+      category: "WALL",
+    });
+
+    constructionState.addModuleInstance({
+      id: scenario.floorInstanceId,
+      definitionId: "def:floor",
+      placementState: "PLACED",
+    });
+
+    const first = new SnapPlacementFoundation({ constructionState });
+
+    first.registerSnapProfile({
+      definitionId: "def:floor",
+      allowedRotations: [0],
+      snapPoints: [
+        {
+          id: scenario.floorSnapId,
+          connectionClass: "FLOOR_WALL",
+          compatibleClasses: ["WALL_BOTTOM"],
+          position: { x: 0, y: 0, z: 0 },
+          rotationY: 0,
+        },
+      ],
+    });
+
+    first.registerSnapProfile({
+      definitionId: "def:wall",
+      allowedRotations: [0],
+      snapPoints: [
+        {
+          id: "bottom",
+          connectionClass: "WALL_BOTTOM",
+          compatibleClasses: ["FLOOR_WALL"],
+          position: { x: 0, y: 0, z: 0 },
+          rotationY: 180,
+        },
+      ],
+    });
+
+    first.previewPlacement({
+      instanceId: "wall:001",
+      definitionId: "def:wall",
+      sourceSnapId: "bottom",
+      targetInstanceId: scenario.floorInstanceId,
+      targetSnapId: scenario.floorSnapId,
+      rotation: 0,
+    });
+
+    const committed = first.placePreview();
+    assert.match(committed.connectionId, /^connection:v2:/);
+
+    const reconstructed = new SnapPlacementFoundation({
+      constructionState,
+    });
+
+    reconstructed.registerSnapProfile({
+      definitionId: "def:floor",
+      allowedRotations: [0],
+      snapPoints: [
+        {
+          id: scenario.floorSnapId,
+          connectionClass: "FLOOR_WALL",
+          compatibleClasses: ["WALL_BOTTOM"],
+          position: { x: 0, y: 0, z: 0 },
+          rotationY: 0,
+        },
+      ],
+    });
+
+    reconstructed.registerSnapProfile({
+      definitionId: "def:wall",
+      allowedRotations: [0],
+      snapPoints: [
+        {
+          id: "bottom",
+          connectionClass: "WALL_BOTTOM",
+          compatibleClasses: ["FLOOR_WALL"],
+          position: { x: 0, y: 0, z: 0 },
+          rotationY: 180,
+        },
+      ],
+    });
+
+    assert.deepEqual(
+      reconstructed.snapshot().occupancy.map((entry) => entry.snapId).sort(),
+      [
+        `${scenario.floorInstanceId}::${scenario.floorSnapId}`,
+        "wall:001::bottom",
+      ].sort(),
+    );
+
+    const before = constructionState.snapshot();
+
+    const candidate = reconstructed.previewPlacement({
+      instanceId: "wall:002",
+      definitionId: "def:wall",
+      sourceSnapId: "bottom",
+      targetInstanceId: scenario.floorInstanceId,
+      targetSnapId: scenario.floorSnapId,
+      rotation: 0,
+    });
+
+    assert.equal(candidate.valid, false);
+    assert.equal(candidate.reason, "TARGET_SNAP_OCCUPIED");
+    assert.deepEqual(constructionState.snapshot(), before);
+  }
+});
