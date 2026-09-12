@@ -26,6 +26,45 @@ function scenePoint(position) {
   };
 }
 
+
+function makeSnapTarget(candidate, selection) {
+  const element = document.createElement("button");
+  const point = scenePoint(candidate.transform.position);
+  const recommended =
+    candidate.key === selection.recommendedTargetKey;
+  const selected =
+    candidate.key === selection.selectedTargetKey;
+
+  element.type = "button";
+  element.className = [
+    "snap-target",
+    recommended ? "is-recommended" : "",
+    selected ? "is-selected" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+  element.style.left = `${point.x}%`;
+  element.style.top = `${point.y}%`;
+  element.dataset.snapTarget = candidate.key;
+  element.setAttribute(
+    "aria-label",
+    selected
+      ? "Gewählter Bauplatz"
+      : recommended
+        ? "Empfohlener Bauplatz"
+        : "Gültiger Bauplatz",
+  );
+  element.textContent = selected ? "●" : recommended ? "★" : "+";
+
+  element.addEventListener("click", (event) => {
+    event.stopPropagation();
+    controller.selectSnapTarget(candidate.key);
+    render();
+  });
+
+  return element;
+}
+
 function makeModule(instance, { ghost = false, valid = true } = {}) {
   const element = document.createElement(ghost ? "div" : "button");
   const point = scenePoint(instance.transform.position);
@@ -101,6 +140,11 @@ function renderScene(state) {
     });
 
     scene.append(element);
+  }
+
+  const selection = state.ui.targetSelection;
+  for (const candidate of selection.candidates) {
+    scene.append(makeSnapTarget(candidate, selection));
   }
 
   const ghost = state.placement.ghostPreview;
