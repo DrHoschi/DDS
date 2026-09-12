@@ -315,9 +315,11 @@ export class ConstructionPrototypeController {
     );
     this.#selectedInstanceId = committed.instanceId;
     this.#nextInstanceNumber += 1;
-    this.#status = `${PIECE_LABELS[this.#selectedPiece]} platziert ✓`;
+    const placedStatus =
+      `${PIECE_LABELS[this.#selectedPiece]} platziert ✓`;
     this.#lastWolfResult = null;
     this.#refreshPreview();
+    this.#status = placedStatus;
 
     return this.snapshot();
   }
@@ -328,14 +330,15 @@ export class ConstructionPrototypeController {
       if (this.#selectedInstanceId === undone.instanceId) {
         this.#selectedInstanceId = null;
       }
-      this.#status = "Letzte Platzierung rückgängig ✓";
       this.#lastWolfResult = null;
+      this.#refreshPreview();
+      this.#status = "Letzte Platzierung rückgängig ✓";
+      return this.snapshot();
     } catch (error) {
+      this.#refreshPreview();
       this.#status = "Gerade gibt es nichts Sicheres zum Rückgängig-machen.";
+      return this.snapshot();
     }
-
-    this.#refreshPreview();
-    return this.snapshot();
   }
 
   reset() {
@@ -348,8 +351,8 @@ export class ConstructionPrototypeController {
     this.#nextInstanceNumber = 1;
     this.#lastWolfResult = null;
     this.#addStarterFloor();
-    this.#status = "Neu gestartet. Der Startboden ist bereit.";
     this.#refreshPreview();
+    this.#status = "Neu gestartet. Der Startboden ist bereit.";
     return this.snapshot();
   }
 
@@ -403,14 +406,14 @@ export class ConstructionPrototypeController {
       maxDistance,
     });
 
-    if (this.#lastWolfResult.failedConnectionIds.length > 0) {
-      this.#status = `Wolf-Test: ${this.#lastWolfResult.failedConnectionIds.length} Verbindung(en) gelöst.`;
-    } else {
-      this.#status = "Wolf-Test: Das Haus hält!";
-    }
+    const wolfStatus =
+      this.#lastWolfResult.failedConnectionIds.length > 0
+        ? `Wolf-Test: ${this.#lastWolfResult.failedConnectionIds.length} Verbindung(en) gelöst.`
+        : "Wolf-Test: Das Haus hält!";
 
     this.#selectedInstanceId = null;
     this.#refreshPreview();
+    this.#status = wolfStatus;
     return this.snapshot();
   }
 
