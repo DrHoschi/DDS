@@ -268,7 +268,6 @@ export class WolfDynamicResponseFoundation {
 
     const detachedModuleIds = this.#detachedModulesAfterFailures(
       construction,
-      failedEvaluations,
       failedConnectionIds,
       instances,
     );
@@ -399,11 +398,16 @@ export class WolfDynamicResponseFoundation {
 
   #detachedModulesAfterFailures(
     construction,
-    failedEvaluations,
     failedConnectionIds,
     instances,
   ) {
-    if (failedEvaluations.length === 0) {
+    const affectedConnections = construction.connections.filter(
+      (connection) =>
+        connection.state !== "CONNECTED" ||
+        failedConnectionIds.has(connection.id),
+    );
+
+    if (affectedConnections.length === 0) {
       return new Set();
     }
 
@@ -414,8 +418,8 @@ export class WolfDynamicResponseFoundation {
     const detached = new Set();
     const checkedSeeds = new Set();
 
-    for (const failure of failedEvaluations) {
-      for (const moduleId of failure.moduleRefs) {
+    for (const connection of affectedConnections) {
+      for (const moduleId of connection.moduleRefs) {
         if (checkedSeeds.has(moduleId)) {
           continue;
         }
@@ -431,7 +435,11 @@ export class WolfDynamicResponseFoundation {
 
         if (!anchored) {
           for (const memberId of component) {
-            detached.add(memberId);
+            if (
+              instances.get(memberId)?.placementState !== "DETACHED"
+            ) {
+              detached.add(memberId);
+            }
           }
         }
       }
