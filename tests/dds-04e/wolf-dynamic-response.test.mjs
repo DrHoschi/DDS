@@ -612,3 +612,39 @@ test("pre-existing FAILED connection does not anchor detached support component"
     "DETACHED",
   );
 });
+
+
+test("FAILED DDS-04C connection releases snap occupancy for replacement placement", () => {
+  const fixture = createSingleWall("STRAW");
+  const connectionId =
+    fixture.constructionState.snapshot().connections[0].id;
+
+  fixture.constructionState.setConnectionState(
+    connectionId,
+    "FAILED",
+  );
+
+  const evaluation = fixture.response.evaluate(
+    wolfForce({ strength: 100 }),
+  );
+
+  assert.equal(evaluation.evaluations[0].outcome, "SURVIVE");
+  assert.equal(
+    evaluation.evaluations[0].reason,
+    "CONNECTION_NOT_ACTIVE",
+  );
+
+  assert.deepEqual(fixture.placement.snapshot().occupancy, []);
+
+  const replacement = fixture.placement.previewPlacement({
+    instanceId: "wall:replacement",
+    definitionId: "def:wall",
+    sourceSnapId: "bottom",
+    targetInstanceId: "floor:001",
+    targetSnapId: "wall",
+    rotation: 0,
+  });
+
+  assert.equal(replacement.valid, true);
+  assert.equal(replacement.reason, "VALID");
+});
