@@ -7,6 +7,34 @@ import {
   PIECE_LABELS,
 } from "../../src/dds-04f/construction-ui-controller.mjs";
 
+function findTarget(state, {
+  targetInstanceId = "floor:starter",
+  targetSnapId,
+  sourceSnapId = null,
+}) {
+  return state.ui.targetSelection.candidates.find(
+    (candidate) =>
+      candidate.targetInstanceId === targetInstanceId &&
+      candidate.targetSnapId === targetSnapId &&
+      (sourceSnapId === null || candidate.sourceSnapId === sourceSnapId),
+  );
+}
+
+function placeFloorAt(controller, {
+  targetInstanceId = "floor:starter",
+  targetSnapId,
+  sourceSnapId,
+}) {
+  const target = findTarget(controller.snapshot(), {
+    targetInstanceId,
+    targetSnapId,
+    sourceSnapId,
+  });
+  assert.ok(target, `Expected FLOOR target ${targetInstanceId}:${targetSnapId}`);
+  controller.selectSnapTarget(target.key);
+  return controller.place();
+}
+
 test("prototype starts from authoritative starter floor with valid wall preview", () => {
   const controller = new ConstructionPrototypeController();
   const state = controller.snapshot();
@@ -114,8 +142,8 @@ test("material changes alter selected module only and preserve topology", () => 
     ).materialRef,
     "STONE",
   );
+  assert.deepEqual(changed.stability.advisory, true);
   assert.deepEqual(changed.construction.connections, topologyBefore);
-  assert.equal(changed.stability.advisory, true);
 });
 
 test("Wolf-Test projects authoritative DDS-04E detach and displacement", () => {
@@ -302,4 +330,153 @@ test("Wolf-Test clears stale target lock and regenerates against current topolog
   assert.equal(after.ui.targetSelection.locked, false);
   assert.equal(after.ui.targetSelection.selectedTargetKey, null);
   assert.ok(Array.isArray(after.ui.targetSelection.candidates));
+});
+
+test("FLOOR profile exposes four orthogonal neighbours and no diagonal neighbour", () => {
+  const controller = new ConstructionPrototypeController();
+  controller.selectPiece("FLOOR");
+  const state = controller.snapshot();
+  const floorProfile = state.placement.snapProfiles.find(
+    (profile) => profile.definitionId === "dds04f:floor",
+  );
+
+  const floorSnaps = floorProfile.snapPoints.filter(
+    (snap) => snap.connectionClass === "FLOOR_EDGE",
+  );
+  assert.deepEqual(
+    floorSnaps.map((snap) => snap.id).sort(),
+    ["floor-east", "floor-north", "floor-south", "floor-west"],
+  );
+
+  const starterTargets = state.ui.targetSelection.candidates.filter(
+    (candidate) =>
+      candidate.targetInstanceId === "floor:starter" &&
+      candidate.targetSnapId.startsWith("floor-"),
+  );
+  assert.ok(starterTargets.length > 0);
+
+  for (const candidate of starterTargets) {
+    const { x, y, z } = candidate.transform.position;
+    assert.equal(y, 0);
+    assert.equal(Math.abs(x) === 4 && z === 0 || x === 0 && Math.abs(z) === 4, true);
+  }
+});
+
+test("authoritative FLOOR snaps can create an L-shaped layout", () => {
+  const controller = new ConstructionPrototypeController();
+  controller.selectPiece("FLOOR");
+
+  placeFloorAt(controller, {
+    targetSnapId: "floor-east",
+    sourceSnapId: "floor-west",
+  });
+  const state = placeFloorAt(controller, {
+    targetSnapId: "floor-north",
+    sourceSnapId: "floor-south",
+  });
+
+  const positions = state.construction.instances
+    .filter((instance) => instance.category === "FLOOR")
+    .map((instance) => [
+      instance.transform.position.x,
+      instance.transform.position.z,
+    ]);
+
+  assert.deepEqual(
+    positions.sort((a, b) => a[0] - b[0] || a[1] - b[1]),
+    [[0, 0], [0, 4], [4, 0]],
+  );
+});
+
+test("authoritative FLOOR snaps can create a 2x2 layout", () => {
+  const controller = new ConstructionPrototypeController();
+  controller.selectPiece("FLOOR");
+
+  placeFloorAt(controller, {
+    targetSnapId: "floor-east",
+    sourceSnapId: "floor-west",
+  });
+  placeFloorAt(controller, {
+    targetSnapId: "floor-north",
+    sourceSnapId: "floor-south",
+  });
+  const state = placeFloorAt(controller, {
+    targetInstanceId: "ui:floor:1",
+    targetSnapId: "floor-north",
+    sourceSnapId: "floor-south",
+  });
+
+  const positions = state.construction.instances
+    .filter((instance) => instance.category === "FLOOR")
+    .map((instance) => [
+      instance.transform.position.x,
+      instance.transform.position.z,
+    ]);
+
+  assert.deepEqual(
+    positions.sort((a, b) => a[0] - b[0] || a[1] - b[1]),
+    [[0, 0], [0, 4], [4, 0], [4, 4]],
+  );
+});
+
+test("FLOOR exposes all four wall edges and all four corner positions", () => {
+  const controller = new ConstructionPrototypeController();
+
+  controller.selectPiece("WALL");
+  const wallTargets = controller.snapshot().ui.targetSelection.candidates
+    .filter((candidate) => candidate.targetInstanceId === "floor:starter")
+    .map((candidate) => candidate.targetSnapId);
+  for (const id of ["wall-north", "wall-east", "wall-south", "wall-west"]) {
+    assert.ok(wallTargets.includes(id), `Missing wall edge ${id}`);
+  }
+
+  controller.selectPiece("CORNER");
+  const cornerTargets = controller.snapshot().ui.targetSelection.candidates
+    .filter((candidate) => candidate.targetInstanceId === "floor:starter")
+    .map((candidate) => candidate.targetSnapId);
+  for (const id of ["corner-east", "corner-south", "corner-west", "corner-north"]) {
+    assert.ok(cornerTargets.includes(id), `Missing corner ${id}`);
+  }
+});
+
+test("legacy corner-east identity preserves its established placement", () => {
+  const controller = new ConstructionPrototypeController();
+  controller.selectPiece("CORNER");
+  const target = findTarget(controller.snapshot(), {
+    targetSnapId: "corner-east",
+    sourceSnapId: "base",
+  });
+
+  assert.ok(target);
+  assert.deepEqual(target.transform, {
+    position: { x: 1.3, y: 0, z: 1.3 },
+    rotation: { x: 0, y: 45, z: 0 },
+    scale: { x: 1, y: 1, z: 1 },
+  });
+});
+
+test("occupied FLOOR edge disappears and undo restores it", () => {
+  const controller = new ConstructionPrototypeController();
+  controller.selectPiece("FLOOR");
+
+  placeFloorAt(controller, {
+    targetSnapId: "floor-east",
+    sourceSnapId: "floor-west",
+  });
+
+  let state = controller.snapshot();
+  assert.equal(
+    Boolean(findTarget(state, {
+      targetInstanceId: "floor:starter",
+      targetSnapId: "floor-east",
+    })),
+    false,
+  );
+
+  controller.undo();
+  state = controller.snapshot();
+  assert.ok(findTarget(state, {
+    targetInstanceId: "floor:starter",
+    targetSnapId: "floor-east",
+  }));
 });
