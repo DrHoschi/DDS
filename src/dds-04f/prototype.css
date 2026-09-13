@@ -697,7 +697,7 @@ button {
     filter 140ms ease,
     opacity 140ms ease,
     transform 140ms ease;
-  filter: var(--material-filter, none) var(--state-filter, none);
+  filter: var(--material-filter, brightness(1)) var(--state-filter, brightness(1));
 }
 
 .scene-module[data-material="STRAW"] {
