@@ -14,6 +14,26 @@ export const YAW_TO_DIRECTION = Object.freeze({
   270: "w",
 });
 
+function finiteNumber(value, label) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) {
+    throw new TypeError(`${label} must be a finite number`);
+  }
+  return number;
+}
+
+function positiveNumber(value, label) {
+  const number = finiteNumber(value, label);
+  if (number <= 0) {
+    throw new RangeError(`${label} must be greater than zero`);
+  }
+  return number;
+}
+
+function clamp(value, minimum, maximum) {
+  return Math.min(maximum, Math.max(minimum, value));
+}
+
 export function normalizeYaw(yaw = 0) {
   const normalized = ((Number(yaw) % 360) + 360) % 360;
 
@@ -34,23 +54,86 @@ export function spriteFrameKey(category, yaw = 0) {
   return `${family}_${YAW_TO_DIRECTION[normalizeYaw(yaw)]}`;
 }
 
-export function projectWorldPoint(
-  position,
-  {
-    originX = 50,
-    originY = 70,
-    groundScale = 8,
-    verticalScale = 12,
-  } = {},
-) {
-  const x = Number(position?.x ?? 0);
-  const y = Number(position?.y ?? 0);
-  const z = Number(position?.z ?? 0);
+export function createSceneProjection({ width, height }) {
+  const sceneWidth = positiveNumber(width, "scene width");
+  const sceneHeight = positiveNumber(height, "scene height");
+  const scale = clamp(
+    Math.min(sceneWidth / 16, sceneHeight / 12),
+    24,
+    44,
+  );
 
-  return {
+  return Object.freeze({
+    width: sceneWidth,
+    height: sceneHeight,
+    originX: sceneWidth * 0.5,
+    originY: sceneHeight * 0.7,
+    groundScale: scale,
+    verticalScale: scale,
+  });
+}
+
+export function projectWorldPoint(position, projection) {
+  if (!projection) {
+    throw new TypeError("scene projection is required");
+  }
+
+  const x = finiteNumber(position?.x ?? 0, "position.x");
+  const y = finiteNumber(position?.y ?? 0, "position.y");
+  const z = finiteNumber(position?.z ?? 0, "position.z");
+  const originX = finiteNumber(projection.originX, "projection.originX");
+  const originY = finiteNumber(projection.originY, "projection.originY");
+  const groundScale = positiveNumber(
+    projection.groundScale,
+    "projection.groundScale",
+  );
+  const verticalScale = positiveNumber(
+    projection.verticalScale,
+    "projection.verticalScale",
+  );
+
+  return Object.freeze({
     x: originX + (x - z) * groundScale,
-    y: originY + (x + z) * (groundScale / 2) - y * verticalScale,
-  };
+    y:
+      originY +
+      (x + z) * (groundScale / 2) -
+      y * verticalScale,
+  });
+}
+
+export function snapWorldPosition(instanceTransform, snapPoint) {
+  const position = instanceTransform?.position ?? {};
+  const scale = instanceTransform?.scale ?? {};
+  const rotation = instanceTransform?.rotation ?? {};
+  const local = snapPoint?.position ?? {};
+
+  const tx = finiteNumber(position.x ?? 0, "transform.position.x");
+  const ty = finiteNumber(position.y ?? 0, "transform.position.y");
+  const tz = finiteNumber(position.z ?? 0, "transform.position.z");
+
+  const kx = finiteNumber(scale.x ?? 1, "transform.scale.x");
+  const ky = finiteNumber(scale.y ?? 1, "transform.scale.y");
+  const kz = finiteNumber(scale.z ?? 1, "transform.scale.z");
+
+  const lx = finiteNumber(local.x ?? 0, "snapPoint.position.x");
+  const ly = finiteNumber(local.y ?? 0, "snapPoint.position.y");
+  const lz = finiteNumber(local.z ?? 0, "snapPoint.position.z");
+
+  const yaw = finiteNumber(rotation.y ?? 0, "transform.rotation.y");
+  const radians = (yaw * Math.PI) / 180;
+
+  const sx = lx * kx;
+  const sy = ly * ky;
+  const sz = lz * kz;
+
+  const rx = sx * Math.cos(radians) - sz * Math.sin(radians);
+  const rz = sx * Math.sin(radians) + sz * Math.cos(radians);
+
+  return Object.freeze({
+    x: tx + rx,
+    y: ty + sy,
+    z: tz + rz,
+  });
 }
 
 export function renderDepth(transform, stableId = "") {
@@ -95,7 +178,6 @@ export function spriteDescriptor(instance, atlasPackage) {
     imageUrl: atlasPackage.imageUrl,
     imageWidth: atlasPackage.imageWidth,
     imageHeight: atlasPackage.imageHeight,
-    point: projectWorldPoint(instance.transform?.position),
     depth: renderDepth(instance.transform, instance.id ?? key),
   });
 }

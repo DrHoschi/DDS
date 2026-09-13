@@ -3,14 +3,16 @@ import {
   MATERIAL_LABELS,
   PIECE_LABELS,
 } from "./construction-ui-controller.mjs";
-import { loadConstructionAtlas } from "../dds-05a/atlas-loader.mjs?build=DDS-05A-TB2";
+import { loadConstructionAtlas } from "../dds-05a/atlas-loader.mjs?build=DDS-05A-TB3";
 import {
+  createSceneProjection,
   projectWorldPoint,
   renderDepth,
+  snapWorldPosition,
   spriteDescriptor,
-} from "../dds-05a/sprite-presentation.mjs?build=DDS-05A-TB2";
+} from "../dds-05a/sprite-presentation.mjs?build=DDS-05A-TB3";
 
-const EXPECTED_BUILD_ID = "DDS-05A-TB2";
+const EXPECTED_BUILD_ID = "DDS-05A-TB3";
 const activeBuildId = new URL(import.meta.url).searchParams.get("build");
 const buildIdValid = activeBuildId === EXPECTED_BUILD_ID;
 
@@ -39,16 +41,16 @@ if (activeBuildId) {
   atlasManifestUrl.searchParams.set("build", activeBuildId);
 }
 
-function clamp(value, min, max) {
-  return Math.min(max, Math.max(min, value));
+function currentSceneProjection() {
+  const bounds = scene.getBoundingClientRect();
+  return createSceneProjection({
+    width: bounds.width,
+    height: bounds.height,
+  });
 }
 
-function scenePoint(position) {
-  const point = projectWorldPoint(position);
-  return {
-    x: clamp(point.x, 6, 94),
-    y: clamp(point.y, 10, 92),
-  };
+function scenePoint(position, projection) {
+  return projectWorldPoint(position, projection);
 }
 
 function categoryGlyph(category) {
@@ -65,9 +67,61 @@ function categoryGlyph(category) {
             : "▮";
 }
 
-function makeSnapTarget(candidate, selection) {
+function resolveTargetSnap(state, candidate) {
+  const targetInstance = state.construction.instances.find(
+    (instance) => instance.id === candidate.targetInstanceId,
+  );
+
+  if (!targetInstance) {
+    console.warn(
+      "DDS-05A snap marker target instance missing:",
+      candidate.targetInstanceId,
+    );
+    return null;
+  }
+
+  const targetProfile = state.placement.snapProfiles.find(
+    (profile) => profile.definitionId === targetInstance.definitionId,
+  );
+
+  if (!targetProfile) {
+    console.warn(
+      "DDS-05A snap marker profile missing:",
+      targetInstance.definitionId,
+    );
+    return null;
+  }
+
+  const targetSnap = targetProfile.snapPoints.find(
+    (snapPoint) => snapPoint.id === candidate.targetSnapId,
+  );
+
+  if (!targetSnap) {
+    console.warn(
+      "DDS-05A snap marker point missing:",
+      candidate.targetSnapId,
+    );
+    return null;
+  }
+
+  return {
+    targetInstance,
+    targetSnap,
+    worldPosition: snapWorldPosition(
+      targetInstance.transform,
+      targetSnap,
+    ),
+  };
+}
+
+function makeSnapTarget(candidate, selection, state, projection) {
+  const resolved = resolveTargetSnap(state, candidate);
+  if (!resolved) {
+    return null;
+  }
+
   const element = document.createElement("button");
-  const point = scenePoint(candidate.transform.position);
+  const point = scenePoint(resolved.worldPosition, projection);
   const recommended = candidate.key === selection.recommendedTargetKey;
   const selected = candidate.key === selection.selectedTargetKey;
 
@@ -79,10 +133,13 @@ function makeSnapTarget(candidate, selection) {
   ]
     .filter(Boolean)
     .join(" ");
-  element.style.left = `${point.x}%`;
-  element.style.top = `${point.y}%`;
+  element.style.left = `${point.x}px`;
+  element.style.top = `${point.y}px`;
   element.style.zIndex = String(
-    renderDepth(candidate.transform, `snap:${candidate.key}`) + 30,
+    renderDepth(
+      resolved.targetInstance.transform,
+      `snap:${candidate.key}`,
+    ) + 30,
   );
   element.dataset.snapTarget = candidate.key;
   element.setAttribute(
@@ -106,17 +163,18 @@ function makeSnapTarget(candidate, selection) {
 
 function applySpriteStyle(sprite, descriptor) {
   const { frame } = descriptor;
+  const pivotX = descriptor.anchorX * frame.w;
+  const pivotY = descriptor.anchorY * frame.h;
 
   sprite.style.width = `${frame.w}px`;
   sprite.style.height = `${frame.h}px`;
-  sprite.style.marginLeft = `${-descriptor.anchorX * frame.w}px`;
-  sprite.style.marginTop = `${-descriptor.anchorY * frame.h}px`;
+  sprite.style.marginLeft = `${-pivotX}px`;
+  sprite.style.marginTop = `${-pivotY}px`;
   sprite.style.backgroundImage = `url("${descriptor.imageUrl}")`;
   sprite.style.backgroundPosition = `-${frame.x}px -${frame.y}px`;
   sprite.style.backgroundSize =
     `${descriptor.imageWidth}px ${descriptor.imageHeight}px`;
-  sprite.style.transformOrigin =
-    `${descriptor.anchorX * 100}% ${descriptor.anchorY * 100}%`;
+  sprite.style.transformOrigin = `${pivotX}px ${pivotY}px`;
   sprite.style.setProperty("--sprite-scale", String(descriptor.scale));
 }
 
@@ -128,9 +186,13 @@ function makeFallbackShape(category, yaw) {
   return shape;
 }
 
-function makeModule(instance, { ghost = false, valid = true } = {}) {
+function makeModule(
+  instance,
+  projection,
+  { ghost = false, valid = true } = {},
+) {
   const element = document.createElement(ghost ? "div" : "button");
-  const point = scenePoint(instance.transform.position);
+  const point = scenePoint(instance.transform.position, projection);
   const category = instance.category ?? "GHOST";
   const descriptor = atlasState.package
     ? spriteDescriptor(instance, atlasState.package)
@@ -148,8 +210,8 @@ function makeModule(instance, { ghost = false, valid = true } = {}) {
     .filter(Boolean)
     .join(" ");
 
-  element.style.left = `${point.x}%`;
-  element.style.top = `${point.y}%`;
+  element.style.left = `${point.x}px`;
+  element.style.top = `${point.y}px`;
   element.style.zIndex = String(
     descriptor?.depth ??
       renderDepth(instance.transform, instance.id ?? `ghost:${category}`),
@@ -190,6 +252,8 @@ function renderScene(state) {
   scene.classList.toggle("has-atlas", Boolean(atlasState.package));
   scene.classList.toggle("has-atlas-error", Boolean(atlasState.error));
 
+  const projection = currentSceneProjection();
+
   const ground = document.createElement("div");
   ground.className = "scene-ground";
   ground.setAttribute("aria-hidden", "true");
@@ -201,7 +265,7 @@ function renderScene(state) {
   );
 
   for (const instance of instances) {
-    const element = makeModule(instance);
+    const element = makeModule(instance, projection);
 
     if (instance.id === state.ui.selectedInstanceId) {
       element.classList.add("is-selected");
@@ -217,7 +281,15 @@ function renderScene(state) {
 
   const selection = state.ui.targetSelection;
   for (const candidate of selection.candidates) {
-    scene.append(makeSnapTarget(candidate, selection));
+    const target = makeSnapTarget(
+      candidate,
+      selection,
+      state,
+      projection,
+    );
+    if (target) {
+      scene.append(target);
+    }
   }
 
   const ghost = state.placement.ghostPreview;
@@ -231,6 +303,7 @@ function renderScene(state) {
           transform: ghost.transform,
           placementState: "GHOST",
         },
+        projection,
         {
           ghost: true,
           valid: ghost.valid,
@@ -348,6 +421,31 @@ document
     render();
   });
 
+if (typeof ResizeObserver === "function") {
+  let lastWidth = null;
+  let lastHeight = null;
+
+  const resizeObserver = new ResizeObserver((entries) => {
+    const entry = entries[0];
+    const width = entry?.contentRect?.width;
+    const height = entry?.contentRect?.height;
+
+    if (
+      Number.isFinite(width) &&
+      Number.isFinite(height) &&
+      width > 0 &&
+      height > 0 &&
+      (width !== lastWidth || height !== lastHeight)
+    ) {
+      lastWidth = width;
+      lastHeight = height;
+      render();
+    }
+  });
+
+  resizeObserver.observe(scene);
+}
+
 render();
 
 if (!buildIdValid) {
@@ -357,15 +455,15 @@ if (!buildIdValid) {
   render();
 } else {
   loadConstructionAtlas(atlasManifestUrl)
-  .then((atlasPackage) => {
-    atlasState.package = atlasPackage;
-    atlasState.error = null;
-    render();
-  })
-  .catch((error) => {
-    atlasState.package = null;
-    atlasState.error = error;
-    console.warn("DDS-05A atlas fallback active:", error);
-    render();
-  });
+    .then((atlasPackage) => {
+      atlasState.package = atlasPackage;
+      atlasState.error = null;
+      render();
+    })
+    .catch((error) => {
+      atlasState.package = null;
+      atlasState.error = error;
+      console.warn("DDS-05A atlas fallback active:", error);
+      render();
+    });
 }

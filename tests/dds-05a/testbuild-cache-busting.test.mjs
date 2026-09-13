@@ -4,8 +4,8 @@ import { readFile } from "node:fs/promises";
 
 import { resolveAtlasImageUrl } from "../../src/dds-05a/atlas-loader.mjs";
 
-const BUILD_ID = "DDS-05A-TB2";
-const BUILD_LABEL = "DDS-05A · TESTBUILD 2";
+const BUILD_ID = "DDS-05A-TB3";
+const BUILD_LABEL = "DDS-05A · TESTBUILD 3";
 
 const html = await readFile(
   new URL("../../index.html", import.meta.url),
@@ -20,49 +20,54 @@ const css = await readFile(
   "utf8",
 );
 
-test("visible TESTBUILD 2 identity and canonical build id are exposed", () => {
+test("visible TESTBUILD 3 identity and canonical build id are exposed", () => {
   assert.match(html, new RegExp(BUILD_LABEL.replace("·", "\\·")));
-  assert.match(html, /data-build-id="DDS-05A-TB2"/);
-  assert.match(html, /<title>DDS-05A · TESTBUILD 2/);
+  assert.match(html, /data-build-id="DDS-05A-TB3"/);
+  assert.match(html, /<title>DDS-05A · TESTBUILD 3/);
 });
 
 test("HTML cache-busts CSS and browser entry with the same build id", () => {
   assert.match(
     html,
-    /prototype\.css\?build=DDS-05A-TB2/,
+    /prototype\.css\?build=DDS-05A-TB3/,
   );
   assert.match(
     html,
-    /browser-app\.mjs\?build=DDS-05A-TB2/,
+    /browser-app\.mjs\?build=DDS-05A-TB3/,
   );
 });
 
 test("browser runtime derives build id from import.meta.url", () => {
   assert.match(app, /new URL\(import\.meta\.url\)\.searchParams\.get\("build"\)/);
-  assert.match(app, /EXPECTED_BUILD_ID = "DDS-05A-TB2"/);
+  assert.match(app, /EXPECTED_BUILD_ID = "DDS-05A-TB3"/);
   assert.match(app, /atlasManifestUrl\.searchParams\.set\("build", activeBuildId\)/);
 });
 
-test("DDS-05A module imports use TESTBUILD 2 cache id", () => {
+test("DDS-05A module imports use TESTBUILD 3 cache id", () => {
   assert.match(
     app,
-    /atlas-loader\.mjs\?build=DDS-05A-TB2/,
+    /atlas-loader\.mjs\?build=DDS-05A-TB3/,
   );
   assert.match(
     app,
-    /sprite-presentation\.mjs\?build=DDS-05A-TB2/,
+    /sprite-presentation\.mjs\?build=DDS-05A-TB3/,
   );
+});
+
+test("active runtime/testbuild identity files contain no TB2 identifier", () => {
+  assert.doesNotMatch(html, /DDS-05A-TB2|TESTBUILD 2/);
+  assert.doesNotMatch(app, /DDS-05A-TB2/);
 });
 
 test("atlas image receives the exact manifest build id", () => {
   const imageUrl = resolveAtlasImageUrl(
-    "https://example.test/assets/construction/dds-05a/candidate/construction-atlas.json?build=DDS-05A-TB2",
+    "https://example.test/assets/construction/dds-05a/candidate/construction-atlas.json?build=DDS-05A-TB3",
     "construction-atlas.png",
   );
 
   assert.equal(
     imageUrl,
-    "https://example.test/assets/construction/dds-05a/candidate/construction-atlas.png?build=DDS-05A-TB2",
+    "https://example.test/assets/construction/dds-05a/candidate/construction-atlas.png?build=DDS-05A-TB3",
   );
 });
 
@@ -83,4 +88,15 @@ test("responsive iPhone and iPad contracts remain present", () => {
   assert.match(css, /@media \(min-width: 720px\)/);
   assert.match(css, /touch-action:\s*manipulation/);
   assert.match(css, /overflow-x:\s*hidden/);
+});
+
+test("browser uses shared pixel projection and actual target snap world point", () => {
+  assert.match(app, /createSceneProjection/);
+  assert.match(app, /getBoundingClientRect\(\)/);
+  assert.match(app, /snapWorldPosition/);
+  assert.match(app, /candidate\.targetInstanceId/);
+  assert.match(app, /candidate\.targetSnapId/);
+  assert.match(app, /style\.left = `\$\{point\.x\}px`/);
+  assert.match(app, /style\.top = `\$\{point\.y\}px`/);
+  assert.doesNotMatch(app, /candidate\.transform\.position\)/);
 });
