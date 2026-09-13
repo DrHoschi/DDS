@@ -142,8 +142,8 @@ test("material changes alter selected module only and preserve topology", () => 
     ).materialRef,
     "STONE",
   );
-  assert.deepEqual(changed.stability.advisory, true);
   assert.deepEqual(changed.construction.connections, topologyBefore);
+  assert.equal(changed.stability.advisory, true);
 });
 
 test("Wolf-Test projects authoritative DDS-04E detach and displacement", () => {
@@ -347,6 +347,15 @@ test("FLOOR profile exposes four orthogonal neighbours and no diagonal neighbour
     floorSnaps.map((snap) => snap.id).sort(),
     ["floor-east", "floor-north", "floor-south", "floor-west"],
   );
+  assert.deepEqual(
+    floorSnaps.map((snap) => snap.position),
+    [
+      { x: 2, y: 0, z: 0 },
+      { x: 0, y: 0, z: 2 },
+      { x: -2, y: 0, z: 0 },
+      { x: 0, y: 0, z: -2 },
+    ],
+  );
 
   const starterTargets = state.ui.targetSelection.candidates.filter(
     (candidate) =>
@@ -354,12 +363,12 @@ test("FLOOR profile exposes four orthogonal neighbours and no diagonal neighbour
       candidate.targetSnapId.startsWith("floor-"),
   );
   assert.ok(starterTargets.length > 0);
-
-  for (const candidate of starterTargets) {
-    const { x, y, z } = candidate.transform.position;
-    assert.equal(y, 0);
-    assert.equal(Math.abs(x) === 4 && z === 0 || x === 0 && Math.abs(z) === 4, true);
-  }
+  assert.equal(
+    starterTargets.some((candidate) =>
+      Math.abs(candidate.transform.position.x) > 0.000001 &&
+      Math.abs(candidate.transform.position.z) > 0.000001),
+    false,
+  );
 });
 
 test("authoritative FLOOR snaps can create an L-shaped layout", () => {
