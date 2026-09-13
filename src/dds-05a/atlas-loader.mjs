@@ -80,7 +80,15 @@ export function validateAtlasManifest(
 }
 
 export function resolveAtlasImageUrl(manifestUrl, imageName) {
-  return new URL(imageName, manifestUrl).href;
+  const manifest = new URL(manifestUrl);
+  const image = new URL(imageName, manifest);
+
+  const buildId = manifest.searchParams.get("build");
+  if (buildId) {
+    image.searchParams.set("build", buildId);
+  }
+
+  return image.href;
 }
 
 function loadImage(imageUrl, imageFactory) {
