@@ -3,36 +3,15 @@
     "format": "asset-lab-atlas-v1",
     "image": "construction-atlas.png",
     "textureKey": "constructionAtlas",
-    "generated": "2026-09-12T20:13:03Z",
-    "atlasWidth": 1536,
-    "atlasHeight": 1024,
-    "cellWidth": 128,
-    "cellHeight": 128,
-    "columns": 12,
-    "rows": 8,
-    "defaults": {
-      "anchorX": 0.5,
-      "anchorY": 1,
-      "scale": 1
-    },
-    "directionOrder": [
-      "s",
-      "se",
-      "e",
-      "ne",
-      "n",
-      "nw",
-      "w",
-      "sw"
-    ]
+    "generated": "2026-09-13T11:10:12.168Z"
   },
   "frames": {
     "floor_s": {
       "frame": {
-        "x": 0,
-        "y": 0,
-        "w": 128,
-        "h": 128
+        "x": 17,
+        "y": 15,
+        "w": 100,
+        "h": 100
       },
       "anchorX": 0.5,
       "anchorY": 0.85,
@@ -40,10 +19,10 @@
     },
     "floor_se": {
       "frame": {
-        "x": 128,
-        "y": 0,
-        "w": 128,
-        "h": 128
+        "x": 121,
+        "y": 15,
+        "w": 100,
+        "h": 100
       },
       "anchorX": 0.5,
       "anchorY": 0.85,
@@ -51,10 +30,10 @@
     },
     "floor_e": {
       "frame": {
-        "x": 256,
+        "x": 235,
         "y": 0,
-        "w": 128,
-        "h": 128
+        "w": 100,
+        "h": 100
       },
       "anchorX": 0.5,
       "anchorY": 0.85,
@@ -62,10 +41,10 @@
     },
     "floor_ne": {
       "frame": {
-        "x": 384,
+        "x": 349,
         "y": 0,
-        "w": 128,
-        "h": 128
+        "w": 100,
+        "h": 100
       },
       "anchorX": 0.5,
       "anchorY": 0.85,
@@ -73,10 +52,10 @@
     },
     "floor_n": {
       "frame": {
-        "x": 512,
+        "x": 464,
         "y": 0,
-        "w": 128,
-        "h": 128
+        "w": 120,
+        "h": 120
       },
       "anchorX": 0.5,
       "anchorY": 0.85,
@@ -84,10 +63,10 @@
     },
     "floor_nw": {
       "frame": {
-        "x": 640,
+        "x": 582,
         "y": 0,
-        "w": 128,
-        "h": 128
+        "w": 120,
+        "h": 120
       },
       "anchorX": 0.5,
       "anchorY": 0.85,
@@ -95,7 +74,7 @@
     },
     "floor_w": {
       "frame": {
-        "x": 768,
+        "x": 701,
         "y": 0,
         "w": 128,
         "h": 128
@@ -106,7 +85,7 @@
     },
     "floor_sw": {
       "frame": {
-        "x": 896,
+        "x": 819,
         "y": 0,
         "w": 128,
         "h": 128
@@ -117,7 +96,7 @@
     },
     "floor_normal": {
       "frame": {
-        "x": 1024,
+        "x": 957,
         "y": 0,
         "w": 128,
         "h": 128
@@ -128,10 +107,10 @@
     },
     "floor_hover": {
       "frame": {
-        "x": 1152,
-        "y": 0,
-        "w": 128,
-        "h": 128
+        "x": 1100,
+        "y": 28,
+        "w": 113,
+        "h": 80
       },
       "anchorX": 0.5,
       "anchorY": 0.85,
@@ -139,10 +118,10 @@
     },
     "floor_ghost": {
       "frame": {
-        "x": 1280,
-        "y": 0,
-        "w": 128,
-        "h": 128
+        "x": 1245,
+        "y": 28,
+        "w": 113,
+        "h": 80
       },
       "anchorX": 0.5,
       "anchorY": 0.85,
@@ -150,10 +129,10 @@
     },
     "floor_invalid": {
       "frame": {
-        "x": 1408,
-        "y": 0,
-        "w": 128,
-        "h": 128
+        "x": 1392,
+        "y": 28,
+        "w": 113,
+        "h": 80
       },
       "anchorX": 0.5,
       "anchorY": 0.85,
@@ -161,43 +140,58 @@
     },
     "wall_s": {
       "frame": {
-        "x": 0,
-        "y": 128,
-        "w": 128,
-        "h": 128
-      }
+        "x": 30,
+        "y": 120,
+        "w": 70,
+        "h": 110
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "wall_se": {
       "frame": {
-        "x": 128,
-        "y": 128,
-        "w": 128,
-        "h": 128
-      }
+        "x": 145,
+        "y": 120,
+        "w": 70,
+        "h": 110
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "wall_e": {
       "frame": {
         "x": 256,
-        "y": 128,
-        "w": 128,
-        "h": 128
-      }
+        "y": 110,
+        "w": 120,
+        "h": 120
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "wall_ne": {
       "frame": {
         "x": 384,
-        "y": 128,
-        "w": 128,
-        "h": 128
-      }
+        "y": 110,
+        "w": 120,
+        "h": 120
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "wall_n": {
       "frame": {
         "x": 512,
-        "y": 128,
-        "w": 128,
-        "h": 128
-      }
+        "y": 110,
+        "w": 120,
+        "h": 120
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "wall_nw": {
       "frame": {
@@ -205,7 +199,10 @@
         "y": 128,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "wall_w": {
       "frame": {
@@ -213,7 +210,10 @@
         "y": 128,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "wall_sw": {
       "frame": {
@@ -221,7 +221,10 @@
         "y": 128,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "wall_normal": {
       "frame": {
@@ -229,7 +232,10 @@
         "y": 128,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "wall_window": {
       "frame": {
@@ -237,7 +243,10 @@
         "y": 128,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "wall_ghost": {
       "frame": {
@@ -245,7 +254,10 @@
         "y": 128,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "wall_invalid": {
       "frame": {
@@ -253,23 +265,32 @@
         "y": 128,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "corner_s": {
       "frame": {
-        "x": 0,
+        "x": 33,
         "y": 256,
-        "w": 128,
-        "h": 128
-      }
+        "w": 70,
+        "h": 112
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "corner_se": {
       "frame": {
-        "x": 128,
+        "x": 138,
         "y": 256,
-        "w": 128,
-        "h": 128
-      }
+        "w": 70,
+        "h": 112
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "corner_e": {
       "frame": {
@@ -277,7 +298,10 @@
         "y": 256,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "corner_ne": {
       "frame": {
@@ -285,7 +309,10 @@
         "y": 256,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "corner_n": {
       "frame": {
@@ -293,7 +320,10 @@
         "y": 256,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "corner_nw": {
       "frame": {
@@ -301,7 +331,10 @@
         "y": 256,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "corner_w": {
       "frame": {
@@ -309,7 +342,10 @@
         "y": 256,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "corner_sw": {
       "frame": {
@@ -317,7 +353,10 @@
         "y": 256,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "corner_normal": {
       "frame": {
@@ -325,7 +364,10 @@
         "y": 256,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "corner_ghost": {
       "frame": {
@@ -333,7 +375,10 @@
         "y": 256,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "corner_invalid": {
       "frame": {
@@ -341,23 +386,32 @@
         "y": 256,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "door_s": {
       "frame": {
-        "x": 0,
+        "x": 32,
         "y": 384,
-        "w": 128,
-        "h": 128
-      }
+        "w": 70,
+        "h": 113
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "door_se": {
       "frame": {
-        "x": 128,
+        "x": 153,
         "y": 384,
-        "w": 128,
-        "h": 128
-      }
+        "w": 70,
+        "h": 113
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "door_e": {
       "frame": {
@@ -365,7 +419,10 @@
         "y": 384,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "door_ne": {
       "frame": {
@@ -373,7 +430,10 @@
         "y": 384,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "door_n": {
       "frame": {
@@ -381,7 +441,10 @@
         "y": 384,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "door_nw": {
       "frame": {
@@ -389,7 +452,10 @@
         "y": 384,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "door_w": {
       "frame": {
@@ -397,7 +463,10 @@
         "y": 384,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "door_sw": {
       "frame": {
@@ -405,7 +474,10 @@
         "y": 384,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "roof_s": {
       "frame": {
@@ -413,7 +485,10 @@
         "y": 512,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "roof_se": {
       "frame": {
@@ -421,7 +496,10 @@
         "y": 512,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "roof_e": {
       "frame": {
@@ -429,7 +507,10 @@
         "y": 512,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "roof_ne": {
       "frame": {
@@ -437,7 +518,10 @@
         "y": 512,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "roof_n": {
       "frame": {
@@ -445,7 +529,10 @@
         "y": 512,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "roof_nw": {
       "frame": {
@@ -453,7 +540,10 @@
         "y": 512,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "roof_w": {
       "frame": {
@@ -461,7 +551,10 @@
         "y": 512,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "roof_sw": {
       "frame": {
@@ -469,7 +562,10 @@
         "y": 512,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "roof_normal": {
       "frame": {
@@ -477,7 +573,10 @@
         "y": 512,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "roof_ghost": {
       "frame": {
@@ -485,7 +584,10 @@
         "y": 512,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "roof_invalid": {
       "frame": {
@@ -493,7 +595,10 @@
         "y": 512,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "beam_s": {
       "frame": {
@@ -501,7 +606,10 @@
         "y": 640,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "beam_se": {
       "frame": {
@@ -509,7 +617,10 @@
         "y": 640,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "beam_e": {
       "frame": {
@@ -517,7 +628,10 @@
         "y": 640,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "beam_ne": {
       "frame": {
@@ -525,7 +639,10 @@
         "y": 640,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "beam_n": {
       "frame": {
@@ -533,7 +650,10 @@
         "y": 640,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "beam_nw": {
       "frame": {
@@ -541,7 +661,10 @@
         "y": 640,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "beam_w": {
       "frame": {
@@ -549,7 +672,10 @@
         "y": 640,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "beam_sw": {
       "frame": {
@@ -557,7 +683,10 @@
         "y": 640,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "foundation_s": {
       "frame": {
@@ -686,7 +815,10 @@
         "y": 896,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "railing": {
       "frame": {
@@ -694,7 +826,10 @@
         "y": 896,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "support": {
       "frame": {
@@ -702,7 +837,10 @@
         "y": 896,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "post": {
       "frame": {
@@ -710,7 +848,10 @@
         "y": 896,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     },
     "half_wall": {
       "frame": {
@@ -718,7 +859,10 @@
         "y": 896,
         "w": 128,
         "h": 128
-      }
+      },
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "scale": 1
     }
   }
 }

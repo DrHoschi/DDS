@@ -3,6 +3,12 @@ import {
   MATERIAL_LABELS,
   PIECE_LABELS,
 } from "./construction-ui-controller.mjs";
+import { loadConstructionAtlas } from "../dds-05a/atlas-loader.mjs";
+import {
+  projectWorldPoint,
+  renderDepth,
+  spriteDescriptor,
+} from "../dds-05a/sprite-presentation.mjs";
 
 const controller = new ConstructionPrototypeController();
 
@@ -15,25 +21,47 @@ const moduleCount = document.querySelector("[data-module-count]");
 const placeButton = document.querySelector("[data-action='place']");
 const undoButton = document.querySelector("[data-action='undo']");
 
+const atlasState = {
+  package: null,
+  error: null,
+};
+
+const atlasManifestUrl = new URL(
+  "../../assets/construction/dds-05a/candidate/construction-atlas.json",
+  import.meta.url,
+);
+
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
 
 function scenePoint(position) {
+  const point = projectWorldPoint(position);
   return {
-    x: clamp(50 + position.x * 9 - position.z * 5, 8, 92),
-    y: clamp(68 - position.y * 13 + position.z * 4, 12, 88),
+    x: clamp(point.x, 6, 94),
+    y: clamp(point.y, 10, 92),
   };
 }
 
+function categoryGlyph(category) {
+  return category === "FLOOR"
+    ? "▱"
+    : category === "ROOF"
+      ? "⌃"
+      : category === "CORNER"
+        ? "⌞"
+        : category === "DOOR_OPENING"
+          ? "▯"
+          : category === "BEAM"
+            ? "━"
+            : "▮";
+}
 
 function makeSnapTarget(candidate, selection) {
   const element = document.createElement("button");
   const point = scenePoint(candidate.transform.position);
-  const recommended =
-    candidate.key === selection.recommendedTargetKey;
-  const selected =
-    candidate.key === selection.selectedTargetKey;
+  const recommended = candidate.key === selection.recommendedTargetKey;
+  const selected = candidate.key === selection.selectedTargetKey;
 
   element.type = "button";
   element.className = [
@@ -45,6 +73,9 @@ function makeSnapTarget(candidate, selection) {
     .join(" ");
   element.style.left = `${point.x}%`;
   element.style.top = `${point.y}%`;
+  element.style.zIndex = String(
+    renderDepth(candidate.transform, `snap:${candidate.key}`) + 30,
+  );
   element.dataset.snapTarget = candidate.key;
   element.setAttribute(
     "aria-label",
@@ -65,14 +96,42 @@ function makeSnapTarget(candidate, selection) {
   return element;
 }
 
+function applySpriteStyle(sprite, descriptor) {
+  const { frame } = descriptor;
+
+  sprite.style.width = `${frame.w}px`;
+  sprite.style.height = `${frame.h}px`;
+  sprite.style.marginLeft = `${-descriptor.anchorX * frame.w}px`;
+  sprite.style.marginTop = `${-descriptor.anchorY * frame.h}px`;
+  sprite.style.backgroundImage = `url("${descriptor.imageUrl}")`;
+  sprite.style.backgroundPosition = `-${frame.x}px -${frame.y}px`;
+  sprite.style.backgroundSize =
+    `${descriptor.imageWidth}px ${descriptor.imageHeight}px`;
+  sprite.style.transformOrigin =
+    `${descriptor.anchorX * 100}% ${descriptor.anchorY * 100}%`;
+  sprite.style.setProperty("--sprite-scale", String(descriptor.scale));
+}
+
+function makeFallbackShape(category, yaw) {
+  const shape = document.createElement("span");
+  shape.className = "scene-module__shape";
+  shape.textContent = categoryGlyph(category);
+  shape.style.setProperty("--module-yaw", `${yaw ?? 0}deg`);
+  return shape;
+}
+
 function makeModule(instance, { ghost = false, valid = true } = {}) {
   const element = document.createElement(ghost ? "div" : "button");
   const point = scenePoint(instance.transform.position);
   const category = instance.category ?? "GHOST";
+  const descriptor = atlasState.package
+    ? spriteDescriptor(instance, atlasState.package)
+    : null;
 
   element.className = [
     "scene-module",
     `scene-module--${category.toLowerCase()}`,
+    descriptor ? "has-sprite" : "is-fallback",
     ghost ? "is-ghost" : "",
     ghost && valid ? "is-valid" : "",
     ghost && !valid ? "is-invalid" : "",
@@ -83,53 +142,59 @@ function makeModule(instance, { ghost = false, valid = true } = {}) {
 
   element.style.left = `${point.x}%`;
   element.style.top = `${point.y}%`;
-  element.style.setProperty(
-    "--module-yaw",
-    `${instance.transform.rotation.y ?? 0}deg`,
+  element.style.zIndex = String(
+    descriptor?.depth ??
+      renderDepth(instance.transform, instance.id ?? `ghost:${category}`),
   );
+
+  element.dataset.material = instance.materialRef ?? "NONE";
 
   if (!ghost) {
     element.type = "button";
     element.dataset.instance = instance.id;
-    element.dataset.material = instance.materialRef ?? "NONE";
     element.setAttribute(
       "aria-label",
       `${PIECE_LABELS[category] ?? category}, ${MATERIAL_LABELS[instance.materialRef] ?? "ohne Material"}`,
     );
-    element.title = `${PIECE_LABELS[category] ?? category} · ${MATERIAL_LABELS[instance.materialRef] ?? "ohne Material"}`;
+    element.title =
+      `${PIECE_LABELS[category] ?? category} · ${MATERIAL_LABELS[instance.materialRef] ?? "ohne Material"}`;
   } else {
     element.setAttribute("aria-hidden", "true");
   }
 
-  const shape = document.createElement("span");
-  shape.className = "scene-module__shape";
-  shape.textContent =
-    category === "FLOOR"
-      ? "▱"
-      : category === "ROOF"
-        ? "⌃"
-        : category === "CORNER"
-          ? "⌞"
-          : category === "DOOR_OPENING"
-            ? "▯"
-            : category === "BEAM"
-              ? "━"
-              : "▮";
+  if (descriptor) {
+    const sprite = document.createElement("span");
+    sprite.className = "scene-module__sprite";
+    sprite.dataset.spriteFrame = descriptor.key;
+    applySpriteStyle(sprite, descriptor);
+    element.append(sprite);
+  } else {
+    element.append(
+      makeFallbackShape(category, instance.transform.rotation.y ?? 0),
+    );
+  }
 
-  element.append(shape);
   return element;
 }
 
 function renderScene(state) {
   scene.replaceChildren();
+  scene.classList.toggle("has-atlas", Boolean(atlasState.package));
+  scene.classList.toggle("has-atlas-error", Boolean(atlasState.error));
 
   const ground = document.createElement("div");
   ground.className = "scene-ground";
   ground.setAttribute("aria-hidden", "true");
   scene.append(ground);
 
-  for (const instance of state.construction.instances) {
+  const instances = [...state.construction.instances].sort(
+    (a, b) =>
+      renderDepth(a.transform, a.id) - renderDepth(b.transform, b.id),
+  );
+
+  for (const instance of instances) {
     const element = makeModule(instance);
+
     if (instance.id === state.ui.selectedInstanceId) {
       element.classList.add("is-selected");
     }
@@ -152,7 +217,9 @@ function renderScene(state) {
     scene.append(
       makeModule(
         {
+          id: "ghost:preview",
           category: state.ui.selectedPiece,
+          materialRef: state.ui.selectedMaterial,
           transform: ghost.transform,
           placementState: "GHOST",
         },
@@ -165,7 +232,8 @@ function renderScene(state) {
   }
 
   const snap = document.createElement("div");
-  snap.className = `snap-marker ${ghost?.valid ? "is-valid" : "is-invalid"}`;
+  snap.className =
+    `snap-marker ${ghost?.valid ? "is-valid" : "is-invalid"}`;
   snap.textContent = ghost?.valid ? "✓" : "×";
   snap.setAttribute("aria-hidden", "true");
   scene.append(snap);
@@ -212,7 +280,10 @@ function updateControls(state) {
   } else {
     stabilityText.textContent = "—";
     stabilityMeter.dataset.level = "NONE";
-    stabilityMeter.setAttribute("aria-label", "Noch keine Stabilitätsanzeige");
+    stabilityMeter.setAttribute(
+      "aria-label",
+      "Noch keine Stabilitätsanzeige",
+    );
   }
 }
 
@@ -268,3 +339,16 @@ document
   });
 
 render();
+
+loadConstructionAtlas(atlasManifestUrl)
+  .then((atlasPackage) => {
+    atlasState.package = atlasPackage;
+    atlasState.error = null;
+    render();
+  })
+  .catch((error) => {
+    atlasState.package = null;
+    atlasState.error = error;
+    console.warn("DDS-05A atlas fallback active:", error);
+    render();
+  });
