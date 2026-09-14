@@ -1,0 +1,25 @@
+name: DDS-05A Regression
+
+on:
+  push:
+    branches:
+      - feature/dds-05a-sprite-construction-presentation
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Run DDS-04F and DDS-05A regression tests
+        run: node --test tests/dds-04f/*.test.mjs tests/dds-05a/*.test.mjs
