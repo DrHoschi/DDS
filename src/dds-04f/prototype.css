@@ -700,6 +700,10 @@ button {
   filter: var(--material-filter, brightness(1)) var(--state-filter, brightness(1));
 }
 
+.scene-module--floor.has-sprite .scene-module__sprite {
+  transform: scale(var(--sprite-scale, 1)) scaleY(0.79);
+}
+
 .scene-module[data-material="STRAW"] {
   --material-filter: sepia(0.42) saturate(1.35) brightness(1.08);
 }
