@@ -41,12 +41,9 @@ test("occupied and floor target states are derived from existing frozen state", 
 });
 
 test("grid exposes only the four authorized presentation states", () => {
-  for (const state of [
-    "free",
-    "occupied",
-    "valid-target",
-    "selected-target",
-  ]) {
+  assert.match(browserApp, /: "free";/);
+  assert.match(css, /\.scene-grid__cell\s*\{/);
+  for (const state of ["occupied", "valid-target", "selected-target"]) {
     assert.match(css, new RegExp(`\\.scene-grid__cell\\.is-${state}`));
   }
 });
@@ -56,5 +53,5 @@ test("grid is presentation-only and smartphone viewport clips rather than changi
   assert.match(css, /\.scene-grid__cell\s*\{[\s\S]*pointer-events:\s*none/);
   assert.match(css, /\.construction-scene\s*\{[\s\S]*overflow:\s*hidden/);
   assert.match(css, /@media \(max-width: 430px\)[\s\S]*\.scene-grid__cell/);
-  assert.doesNotMatch(browserApp, /GRID_SIZE\s*=\s*[^9]/);
+  assert.match(browserApp, /const GRID_SIZE = 9;/);
 });
