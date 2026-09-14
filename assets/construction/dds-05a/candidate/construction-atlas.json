@@ -14,7 +14,7 @@
         "h": 74
       },
       "anchorX": 0.5,
-      "anchorY": 0.84,
+      "anchorY": 0.419,
       "scale": 1
     },
     "floor_se": {
@@ -36,7 +36,7 @@
         "h": 74
       },
       "anchorX": 0.5,
-      "anchorY": 0.84,
+      "anchorY": 0.419,
       "scale": 1
     },
     "floor_ne": {
@@ -58,7 +58,7 @@
         "h": 74
       },
       "anchorX": 0.5,
-      "anchorY": 0.84,
+      "anchorY": 0.419,
       "scale": 1
     },
     "floor_nw": {
@@ -80,7 +80,7 @@
         "h": 74
       },
       "anchorX": 0.5,
-      "anchorY": 0.84,
+      "anchorY": 0.419,
       "scale": 1
     },
     "floor_sw": {
