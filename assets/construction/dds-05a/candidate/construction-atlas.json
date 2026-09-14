@@ -14,8 +14,8 @@
         "h": 80
       },
       "anchorX": 0.5,
-      "anchorY": 0.85,
-      "scale": 1.30
+      "anchorY": 0.425,
+      "scale": 1
     },
     "floor_se": {
       "frame": {
@@ -36,8 +36,8 @@
         "h": 80
       },
       "anchorX": 0.5,
-      "anchorY": 0.85,
-      "scale": 1.30
+      "anchorY": 0.425,
+      "scale": 1
     },
     "floor_ne": {
       "frame": {
@@ -58,8 +58,8 @@
         "h": 80
       },
       "anchorX": 0.5,
-      "anchorY": 0.85,
-      "scale": 1.30
+      "anchorY": 0.425,
+      "scale": 1
     },
     "floor_nw": {
       "frame": {
@@ -80,8 +80,8 @@
         "h": 80
       },
       "anchorX": 0.5,
-      "anchorY": 0.85,
-      "scale": 1.30
+      "anchorY": 0.425,
+      "scale": 1
     },
     "floor_sw": {
       "frame": {
