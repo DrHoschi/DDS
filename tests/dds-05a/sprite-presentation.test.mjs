@@ -81,9 +81,9 @@ test("sprite descriptor is presentation-only and leaves source instance unchange
   assert.deepEqual(instance, before);
 });
 
-test("FLOOR runtime directions use TESTBUILD 1.1 footprint scale without changing other sprite families", () => {
+test("FLOOR runtime directions use TESTBUILD 1.2 footprint scale without changing other sprite families", () => {
   for (const key of ["floor_s", "floor_e", "floor_n", "floor_w"]) {
-    assert.equal(manifest.frames[key].scale, 1.15, `${key} scale`);
+    assert.equal(manifest.frames[key].scale, 1.30, `${key} scale`);
     assert.equal(manifest.frames[key].anchorX, 0.5, `${key} anchorX`);
     assert.equal(manifest.frames[key].anchorY, 0.85, `${key} anchorY`);
   }
