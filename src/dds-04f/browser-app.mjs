@@ -2,17 +2,17 @@ import {
   ConstructionPrototypeController,
   MATERIAL_LABELS,
   PIECE_LABELS,
-} from "./construction-ui-controller.mjs?build=DDS-05A-TB3.1";
-import { loadConstructionAtlas } from "../dds-05a/atlas-loader.mjs?build=DDS-05A-TB3.1";
+} from "./construction-ui-controller.mjs?build=DDS-05B-TB1";
+import { loadConstructionAtlas } from "../dds-05a/atlas-loader.mjs?build=DDS-05B-TB1";
 import {
   createSceneProjection,
   projectWorldPoint,
   renderDepth,
   snapWorldPosition,
   spriteDescriptor,
-} from "../dds-05a/sprite-presentation.mjs?build=DDS-05A-TB3.1";
+} from "../dds-05a/sprite-presentation.mjs?build=DDS-05B-TB1";
 
-const EXPECTED_BUILD_ID = "DDS-05A-TB3.1";
+const EXPECTED_BUILD_ID = "DDS-05B-TB1";
 const activeBuildId = new URL(import.meta.url).searchParams.get("build");
 const buildIdValid = activeBuildId === EXPECTED_BUILD_ID;
 
@@ -462,7 +462,7 @@ function updateControls(state) {
 
   statusText.textContent = buildIdValid
     ? state.ui.status
-    : "TESTBUILD ungültig: DDS-05A Build-ID fehlt oder stimmt nicht.";
+    : "TESTBUILD ungültig: DDS-05B Build-ID fehlt oder stimmt nicht.";
   moduleCount.textContent = String(state.construction.instances.length);
 
   if (state.stability) {
@@ -568,7 +568,7 @@ render();
 
 if (!buildIdValid) {
   atlasState.error = new Error(
-    `Invalid DDS-05A test build id: ${activeBuildId ?? "missing"}`,
+    `Invalid DDS-05B test build id: ${activeBuildId ?? "missing"}`,
   );
   render();
 } else {
