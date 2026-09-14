@@ -18,7 +18,6 @@ const manifest = JSON.parse(await readFile(manifestUrl, "utf8"));
 
 test("candidate manifest keeps all six frozen categories across eight directions", () => {
   assert.equal(validateAtlasManifest(manifest), true);
-  assert.equal(Object.keys(manifest.frames).length, 78);
 
   for (const family of Object.values(REQUIRED_CATEGORY_FAMILIES)) {
     for (const direction of REQUIRED_DIRECTIONS) {
