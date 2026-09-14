@@ -81,7 +81,7 @@ test("sprite descriptor is presentation-only and leaves source instance unchange
   assert.deepEqual(instance, before);
 });
 
-test("FLOOR runtime directions use TESTBUILD 1.4 top-surface anchor crops without changing other sprite families", () => {
+test("FLOOR runtime directions use TESTBUILD 1.5 center-anchor correction without changing other sprite families", () => {
   const expectedFrames = {
     floor_s: { x: 20, y: 31, w: 95, h: 74 },
     floor_e: { x: 253, y: 31, w: 95, h: 74 },
@@ -93,7 +93,7 @@ test("FLOOR runtime directions use TESTBUILD 1.4 top-surface anchor crops withou
     assert.deepEqual(manifest.frames[key].frame, frame, `${key} frame`);
     assert.equal(manifest.frames[key].scale, 1, `${key} scale`);
     assert.equal(manifest.frames[key].anchorX, 0.5, `${key} anchorX`);
-    assert.equal(manifest.frames[key].anchorY, 0.84, `${key} anchorY`);
+    assert.equal(manifest.frames[key].anchorY, 0.419, `${key} anchorY`);
   }
 
   for (const key of ["floor_se", "floor_ne", "floor_nw", "floor_sw"]) {
