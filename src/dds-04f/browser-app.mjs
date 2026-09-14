@@ -16,6 +16,12 @@ const EXPECTED_BUILD_ID = "DDS-05A-TB3.1";
 const activeBuildId = new URL(import.meta.url).searchParams.get("build");
 const buildIdValid = activeBuildId === EXPECTED_BUILD_ID;
 
+const GRID_SIZE = 9;
+const GRID_CELL_WORLD_SIZE = 2;
+const GRID_HALF_EXTENT = Math.floor(GRID_SIZE / 2);
+const GRID_ORIGIN_INDEX = GRID_HALF_EXTENT;
+const SVG_NS = "http://www.w3.org/2000/svg";
+
 const controller = new ConstructionPrototypeController();
 
 const scene = document.querySelector("[data-scene]");
@@ -65,6 +71,117 @@ function categoryGlyph(category) {
           : category === "BEAM"
             ? "━"
             : "▮";
+}
+
+function gridCellKey(x, z) {
+  return `${x}:${z}`;
+}
+
+function nearestGridCoordinate(value) {
+  return Math.round(Number(value) / GRID_CELL_WORLD_SIZE) * GRID_CELL_WORLD_SIZE;
+}
+
+function gridCellFromWorldPosition(position) {
+  const x = nearestGridCoordinate(position?.x ?? 0);
+  const z = nearestGridCoordinate(position?.z ?? 0);
+  const limit = GRID_HALF_EXTENT * GRID_CELL_WORLD_SIZE;
+
+  if (Math.abs(x) > limit || Math.abs(z) > limit) {
+    return null;
+  }
+
+  return { x, z, key: gridCellKey(x, z) };
+}
+
+function occupiedFloorCells(state) {
+  return new Set(
+    state.construction.instances
+      .filter((instance) => instance.category === "FLOOR")
+      .map((instance) => gridCellFromWorldPosition(instance.transform.position))
+      .filter(Boolean)
+      .map((cell) => cell.key),
+  );
+}
+
+function floorTargetCells(state) {
+  const valid = new Set();
+  let selected = null;
+
+  if (state.ui.selectedPiece !== "FLOOR") {
+    return { valid, selected };
+  }
+
+  const selection = state.ui.targetSelection;
+  for (const candidate of selection.candidates) {
+    const resolved = resolveTargetSnap(state, candidate);
+    const cell = resolved
+      ? gridCellFromWorldPosition(resolved.worldPosition)
+      : null;
+
+    if (!cell) {
+      continue;
+    }
+
+    valid.add(cell.key);
+    if (candidate.key === selection.selectedTargetKey) {
+      selected = cell.key;
+    }
+  }
+
+  return { valid, selected };
+}
+
+function makeGridCellPolygon(x, z, projection, stateName) {
+  const half = GRID_CELL_WORLD_SIZE / 2;
+  const corners = [
+    { x: x - half, y: 0, z: z - half },
+    { x: x + half, y: 0, z: z - half },
+    { x: x + half, y: 0, z: z + half },
+    { x: x - half, y: 0, z: z + half },
+  ].map((corner) => scenePoint(corner, projection));
+
+  const polygon = document.createElementNS(SVG_NS, "polygon");
+  polygon.classList.add("scene-grid__cell", `is-${stateName}`);
+  polygon.setAttribute(
+    "points",
+    corners.map((point) => `${point.x},${point.y}`).join(" "),
+  );
+  polygon.dataset.gridCell = gridCellKey(x, z);
+  polygon.dataset.gridState = stateName;
+  polygon.setAttribute("vector-effect", "non-scaling-stroke");
+  return polygon;
+}
+
+function makeConstructionGrid(state, projection) {
+  const grid = document.createElementNS(SVG_NS, "svg");
+  grid.classList.add("scene-grid");
+  grid.dataset.gridSize = String(GRID_SIZE);
+  grid.dataset.cellWorldSize = String(GRID_CELL_WORLD_SIZE);
+  grid.setAttribute("viewBox", `0 0 ${projection.width} ${projection.height}`);
+  grid.setAttribute("preserveAspectRatio", "none");
+  grid.setAttribute("aria-hidden", "true");
+
+  const occupied = occupiedFloorCells(state);
+  const targets = floorTargetCells(state);
+
+  for (let row = 0; row < GRID_SIZE; row += 1) {
+    for (let column = 0; column < GRID_SIZE; column += 1) {
+      const x = (column - GRID_ORIGIN_INDEX) * GRID_CELL_WORLD_SIZE;
+      const z = (row - GRID_ORIGIN_INDEX) * GRID_CELL_WORLD_SIZE;
+      const key = gridCellKey(x, z);
+      const stateName = targets.selected === key
+        ? "selected-target"
+        : targets.valid.has(key)
+          ? "valid-target"
+          : occupied.has(key)
+            ? "occupied"
+            : "free";
+
+      grid.append(makeGridCellPolygon(x, z, projection, stateName));
+    }
+  }
+
+  return grid;
 }
 
 function resolveTargetSnap(state, candidate) {
@@ -258,6 +375,7 @@ function renderScene(state) {
   ground.className = "scene-ground";
   ground.setAttribute("aria-hidden", "true");
   scene.append(ground);
+  scene.append(makeConstructionGrid(state, projection));
 
   const instances = [...state.construction.instances].sort(
     (a, b) =>
