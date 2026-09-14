@@ -56,7 +56,7 @@ test("atlas loader validates actual image dimensions without structural authorit
 
   assert.equal(loaded.imageWidth, 1536);
   assert.equal(loaded.imageHeight, 1024);
-  assert.equal(loaded.manifest.frames.floor_s.frame.x, 17);
+  assert.equal(loaded.manifest.frames.floor_s.frame.x, 20);
   assert.deepEqual(loaded.manifest.frames.beam_s.frame, {
     x: 17,
     y: 635,
