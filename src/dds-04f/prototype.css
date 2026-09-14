@@ -773,3 +773,54 @@ button {
     --sprite-scale: 0.88;
   }
 }
+
+/* DDS-05B – visible construction grid / placement presentation */
+.scene-grid {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.scene-grid__cell {
+  fill: rgba(255, 255, 255, 0.055);
+  stroke: rgba(64, 91, 55, 0.34);
+  stroke-width: 1.2;
+  pointer-events: none;
+}
+
+.scene-grid__cell.is-occupied {
+  fill: rgba(112, 92, 67, 0.19);
+  stroke: rgba(89, 69, 49, 0.5);
+  stroke-width: 1.55;
+}
+
+.scene-grid__cell.is-valid-target {
+  fill: rgba(66, 184, 103, 0.2);
+  stroke: rgba(42, 155, 82, 0.92);
+  stroke-width: 2.2;
+}
+
+.scene-grid__cell.is-selected-target {
+  fill: rgba(109, 80, 199, 0.28);
+  stroke: rgba(91, 63, 177, 0.98);
+  stroke-width: 2.8;
+}
+
+@media (max-width: 430px) {
+  .scene-grid__cell {
+    fill: rgba(255, 255, 255, 0.04);
+    stroke-width: 1;
+  }
+
+  .scene-grid__cell.is-valid-target {
+    stroke-width: 2;
+  }
+
+  .scene-grid__cell.is-selected-target {
+    stroke-width: 2.5;
+  }
+}
