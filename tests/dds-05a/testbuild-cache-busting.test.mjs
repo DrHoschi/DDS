@@ -4,8 +4,8 @@ import { readFile } from "node:fs/promises";
 
 import { resolveAtlasImageUrl } from "../../src/dds-05a/atlas-loader.mjs";
 
-const BUILD_ID = "DDS-05A-TB3";
-const BUILD_LABEL = "DDS-05A · TESTBUILD 3";
+const BUILD_ID = "DDS-05A-TB3.1";
+const BUILD_LABEL = "DDS-05A · TESTBUILD 3.1";
 
 const html = await readFile(
   new URL("../../index.html", import.meta.url),
@@ -20,54 +20,60 @@ const css = await readFile(
   "utf8",
 );
 
-test("visible TESTBUILD 3 identity and canonical build id are exposed", () => {
+test("visible TESTBUILD 3.1 identity and canonical build id are exposed", () => {
   assert.match(html, new RegExp(BUILD_LABEL.replace("·", "\\·")));
-  assert.match(html, /data-build-id="DDS-05A-TB3"/);
-  assert.match(html, /<title>DDS-05A · TESTBUILD 3/);
+  assert.match(html, /data-build-id="DDS-05A-TB3\.1"/);
+  assert.match(html, /<title>DDS-05A · TESTBUILD 3\.1/);
 });
 
 test("HTML cache-busts CSS and browser entry with the same build id", () => {
   assert.match(
     html,
-    /prototype\.css\?build=DDS-05A-TB3/,
+    /prototype\.css\?build=DDS-05A-TB3\.1/,
   );
   assert.match(
     html,
-    /browser-app\.mjs\?build=DDS-05A-TB3/,
+    /browser-app\.mjs\?build=DDS-05A-TB3\.1/,
   );
 });
 
 test("browser runtime derives build id from import.meta.url", () => {
   assert.match(app, /new URL\(import\.meta\.url\)\.searchParams\.get\("build"\)/);
-  assert.match(app, /EXPECTED_BUILD_ID = "DDS-05A-TB3"/);
+  assert.match(app, /EXPECTED_BUILD_ID = "DDS-05A-TB3\.1"/);
   assert.match(app, /atlasManifestUrl\.searchParams\.set\("build", activeBuildId\)/);
 });
 
-test("DDS-05A module imports use TESTBUILD 3 cache id", () => {
+test("DDS-05A module imports use TESTBUILD 3.1 cache id", () => {
   assert.match(
     app,
-    /atlas-loader\.mjs\?build=DDS-05A-TB3/,
+    /construction-ui-controller\.mjs\?build=DDS-05A-TB3\.1/,
   );
   assert.match(
     app,
-    /sprite-presentation\.mjs\?build=DDS-05A-TB3/,
+    /atlas-loader\.mjs\?build=DDS-05A-TB3\.1/,
+  );
+  assert.match(
+    app,
+    /sprite-presentation\.mjs\?build=DDS-05A-TB3\.1/,
   );
 });
 
-test("active runtime/testbuild identity files contain no TB2 identifier", () => {
+test("active runtime/testbuild identity files contain no stale TB2 or exact TB3 identifier", () => {
   assert.doesNotMatch(html, /DDS-05A-TB2|TESTBUILD 2/);
   assert.doesNotMatch(app, /DDS-05A-TB2/);
+  assert.doesNotMatch(html, /DDS-05A-TB3(?!\.1)|TESTBUILD 3(?!\.1)/);
+  assert.doesNotMatch(app, /DDS-05A-TB3(?!\.1)/);
 });
 
 test("atlas image receives the exact manifest build id", () => {
   const imageUrl = resolveAtlasImageUrl(
-    "https://example.test/assets/construction/dds-05a/candidate/construction-atlas.json?build=DDS-05A-TB3",
+    "https://example.test/assets/construction/dds-05a/candidate/construction-atlas.json?build=DDS-05A-TB3.1",
     "construction-atlas.png",
   );
 
   assert.equal(
     imageUrl,
-    "https://example.test/assets/construction/dds-05a/candidate/construction-atlas.png?build=DDS-05A-TB3",
+    "https://example.test/assets/construction/dds-05a/candidate/construction-atlas.png?build=DDS-05A-TB3.1",
   );
 });
 
