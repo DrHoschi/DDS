@@ -15,7 +15,7 @@
       },
       "anchorX": 0.5,
       "anchorY": 0.85,
-      "scale": 1.15
+      "scale": 1.30
     },
     "floor_se": {
       "frame": {
@@ -37,7 +37,7 @@
       },
       "anchorX": 0.5,
       "anchorY": 0.85,
-      "scale": 1.15
+      "scale": 1.30
     },
     "floor_ne": {
       "frame": {
@@ -59,7 +59,7 @@
       },
       "anchorX": 0.5,
       "anchorY": 0.85,
-      "scale": 1.15
+      "scale": 1.30
     },
     "floor_nw": {
       "frame": {
@@ -81,7 +81,7 @@
       },
       "anchorX": 0.5,
       "anchorY": 0.85,
-      "scale": 1.15
+      "scale": 1.30
     },
     "floor_sw": {
       "frame": {
