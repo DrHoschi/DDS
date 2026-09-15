@@ -2,17 +2,17 @@ import {
   ConstructionPrototypeController,
   MATERIAL_LABELS,
   PIECE_LABELS,
-} from "./construction-ui-controller.mjs?build=DDS-05B-TB1.6";
-import { loadConstructionAtlas } from "../dds-05a/atlas-loader.mjs?build=DDS-05B-TB1.6";
+} from "./construction-ui-controller.mjs?build=DDS-05B1-TB1.7";
+import { loadConstructionAtlas } from "../dds-05a/atlas-loader.mjs?build=DDS-05B1-TB1.7";
 import {
   createSceneProjection,
   projectWorldPoint,
   renderDepth,
   snapWorldPosition,
   spriteDescriptor,
-} from "../dds-05a/sprite-presentation.mjs?build=DDS-05B-TB1.6";
+} from "../dds-05a/sprite-presentation.mjs?build=DDS-05B1-TB1.7";
 
-const EXPECTED_BUILD_ID = "DDS-05B-TB1.6";
+const EXPECTED_BUILD_ID = "DDS-05B1-TB1.7";
 const activeBuildId = new URL(import.meta.url).searchParams.get("build");
 const buildIdValid = activeBuildId === EXPECTED_BUILD_ID;
 

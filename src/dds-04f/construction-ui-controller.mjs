@@ -372,11 +372,20 @@ export class ConstructionPrototypeController {
       throw new Error(`Unknown or unavailable DDS-04F snap target: ${targetKey}`);
     }
 
-    this.#selectedTargetKey = target.key;
-    this.#selectedTargetRequest = { ...target.request };
+    const selectedTarget = this.#selectedPiece === "FLOOR"
+      ? this.#targetCandidates.find(
+          (candidate) =>
+            candidate.targetInstanceId === target.targetInstanceId &&
+            candidate.targetSnapId === target.targetSnapId &&
+            candidate.transform.rotation.y === this.#rotation,
+        ) ?? target
+      : target;
+
+    this.#selectedTargetKey = selectedTarget.key;
+    this.#selectedTargetRequest = { ...selectedTarget.request };
 
     const selected = this.#placement.previewPlacement({
-      ...target.request,
+      ...selectedTarget.request,
       rotation: this.#rotation,
     });
 
