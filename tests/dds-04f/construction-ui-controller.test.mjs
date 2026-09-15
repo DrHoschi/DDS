@@ -281,6 +281,35 @@ test("rotation keeps manually selected snap target locked", () => {
   assert.equal(rotated.placement.ghostPreview.request.rotation, 90);
 });
 
+test("FLOOR rotation keeps the selected cell fixed and advances the direction yaw", () => {
+  const controller = new ConstructionPrototypeController();
+  controller.selectPiece("FLOOR");
+
+  const target = controller.snapshot().ui.targetSelection.candidates[0];
+  const selected = controller.selectSnapTarget(target.key);
+  const selectedPosition = selected.placement.ghostPreview.transform.position;
+
+  assert.deepEqual(selected.placement.ghostPreview.transform.rotation, {
+    x: 0,
+    y: 0,
+    z: 0,
+  });
+
+  for (const expectedYaw of [90, 180, 270, 0]) {
+    const rotated = controller.rotate();
+
+    assert.equal(rotated.ui.targetSelection.locked, true);
+    assert.deepEqual(
+      rotated.placement.ghostPreview.transform.position,
+      selectedPosition,
+    );
+    assert.equal(
+      rotated.placement.ghostPreview.transform.rotation.y,
+      expectedYaw,
+    );
+  }
+});
+
 test("Place commits the manually selected target and then regenerates suggestions", () => {
   const controller = new ConstructionPrototypeController();
   const target = controller.snapshot().ui.targetSelection.candidates[1];
