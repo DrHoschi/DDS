@@ -701,7 +701,7 @@ button {
 }
 
 .scene-module--floor.has-sprite .scene-module__sprite {
-  transform: scale(var(--sprite-scale, 1)) scaleY(0.79);
+  transform: scale(var(--sprite-scale, 1));
 }
 
 .scene-module[data-material="STRAW"] {
@@ -773,7 +773,7 @@ button {
 }
 
 @media (max-width: 430px) {
-  .scene-module__sprite {
+  .scene-module:not(.scene-module--floor) .scene-module__sprite {
     --sprite-scale: 0.88;
   }
 }
