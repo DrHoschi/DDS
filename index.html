@@ -8,10 +8,10 @@
     />
     <meta
       name="description"
-      content="FLOOR Fine Calibration · TESTBUILD 1.8.4 CALIBRATION – BOTTOM↔Anchor Grid Registration"
+      content="FLOOR Fine Calibration · TESTBUILD 1.8.5 CALIBRATION – Original Anchor to Bottom Grid Crossing"
     />
-    <title>FLOOR Fine Calibration · TESTBUILD 1.8.4 CALIBRATION – Bau & Wolf-Test</title>
-    <link rel="stylesheet" href="./src/dds-04f/prototype.css?build=DDS-FLOOR-CAL-TB1.8.4" />
+    <title>FLOOR Fine Calibration · TESTBUILD 1.8.5 CALIBRATION – Bau & Wolf-Test</title>
+    <link rel="stylesheet" href="./src/dds-04f/prototype.css?build=DDS-FLOOR-CAL-TB1.8.5" />
     <style>
       /* Temporary FLOOR measurement isolation. Render-only; no geometry changes. */
       body:has([data-piece="FLOOR"].is-active) .scene-module.is-ghost {
@@ -46,21 +46,20 @@
           linear-gradient(90deg, transparent 8px, #1467d8 8px, #1467d8 10px, transparent 10px);
       }
 
-      /* TESTBUILD 1.8.4: floor_s only. Width/metric scale stays unchanged.
-         The complete projected top-surface diamond is 95 × 47.5 asset px.
-         Register its BOTTOM point to the world/grid crossing; visible wood thickness stays below. */
+      /* TESTBUILD 1.8.5: keep the original atlas anchor and metric width/scale.
+         Move that unchanged anchor from the cell center to the bottom grid crossing.
+         23.75 asset px × metric scale = one projected half-cell (groundScale). */
       .scene-module--floor .scene-module__sprite[data-sprite-frame="floor_s"] {
-        margin-top: -47.5px !important;
-        transform-origin: 47.5px 47.5px !important;
+        transform: scale(var(--sprite-scale, 1)) translateY(23.75px) !important;
       }
     </style>
   </head>
   <body>
-    <main class="app-shell" data-build-id="DDS-FLOOR-CAL-TB1.8.4">
+    <main class="app-shell" data-build-id="DDS-FLOOR-CAL-TB1.8.5">
       <header class="topbar">
         <div class="title-block">
           <h1>Baue dein Schweinchen-Haus</h1>
-          <p>FLOOR Fine Calibration · TESTBUILD 1.8.4 CALIBRATION · BOTTOM↔Anchor Grid Registration.</p>
+          <p>FLOOR Fine Calibration · TESTBUILD 1.8.5 CALIBRATION · Original Anchor → Bottom Grid Crossing.</p>
         </div>
         <div class="status-chip" data-status aria-live="polite">
           Bauteil wählen und losbauen.
@@ -225,6 +224,6 @@
       </aside>
     </main>
 
-    <script type="module" src="./src/dds-04f/browser-app.mjs?build=DDS-FLOOR-CAL-TB1.8&rev=DDS-FLOOR-CAL-TB1.8.4"></script>
+    <script type="module" src="./src/dds-04f/browser-app.mjs?build=DDS-FLOOR-CAL-TB1.8&rev=DDS-FLOOR-CAL-TB1.8.5"></script>
   </body>
 </html>
