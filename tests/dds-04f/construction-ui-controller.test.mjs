@@ -350,10 +350,10 @@ test("FLOOR profile exposes four orthogonal neighbours and no diagonal neighbour
   assert.deepEqual(
     floorSnaps.map((snap) => snap.position),
     [
-      { x: 2, y: 0, z: 0 },
-      { x: 0, y: 0, z: 2 },
-      { x: -2, y: 0, z: 0 },
-      { x: 0, y: 0, z: -2 },
+      { x: 1, y: 0, z: 0 },
+      { x: 0, y: 0, z: 1 },
+      { x: -1, y: 0, z: 0 },
+      { x: 0, y: 0, z: -1 },
     ],
   );
 
@@ -393,7 +393,7 @@ test("authoritative FLOOR snaps can create an L-shaped layout", () => {
 
   assert.deepEqual(
     positions.sort((a, b) => a[0] - b[0] || a[1] - b[1]),
-    [[0, 0], [0, 4], [4, 0]],
+    [[0, 0], [0, 2], [2, 0]],
   );
 });
 
@@ -424,7 +424,7 @@ test("authoritative FLOOR snaps can create a 2x2 layout", () => {
 
   assert.deepEqual(
     positions.sort((a, b) => a[0] - b[0] || a[1] - b[1]),
-    [[0, 0], [0, 4], [4, 0], [4, 4]],
+    [[0, 0], [0, 2], [2, 0], [2, 2]],
   );
 });
 
