@@ -18,6 +18,7 @@ const buildIdValid = activeBuildId === EXPECTED_BUILD_ID;
 
 const GRID_SIZE = 9;
 const GRID_CELL_WORLD_SIZE = 2;
+const FLOOR_ASSET_PPU = 47.5;
 const GRID_HALF_EXTENT = Math.floor(GRID_SIZE / 2);
 const GRID_ORIGIN_INDEX = GRID_HALF_EXTENT;
 const SVG_NS = "http://www.w3.org/2000/svg";
@@ -287,10 +288,13 @@ function makeCalibrationCross(position, projection) {
   return element;
 }
 
-function applySpriteStyle(sprite, descriptor) {
+function applySpriteStyle(sprite, descriptor, category, projection) {
   const { frame } = descriptor;
   const pivotX = descriptor.anchorX * frame.w;
   const pivotY = descriptor.anchorY * frame.h;
+  const renderScale = category === "FLOOR"
+    ? (2 * projection.groundScale) / FLOOR_ASSET_PPU
+    : descriptor.scale;
 
   sprite.style.width = `${frame.w}px`;
   sprite.style.height = `${frame.h}px`;
@@ -301,7 +305,7 @@ function applySpriteStyle(sprite, descriptor) {
   sprite.style.backgroundSize =
     `${descriptor.imageWidth}px ${descriptor.imageHeight}px`;
   sprite.style.transformOrigin = `${pivotX}px ${pivotY}px`;
-  sprite.style.setProperty("--sprite-scale", String(descriptor.scale));
+  sprite.style.setProperty("--sprite-scale", String(renderScale));
 }
 
 function makeFallbackShape(category, yaw) {
@@ -362,7 +366,7 @@ function makeModule(
     const sprite = document.createElement("span");
     sprite.className = "scene-module__sprite";
     sprite.dataset.spriteFrame = descriptor.key;
-    applySpriteStyle(sprite, descriptor);
+    applySpriteStyle(sprite, descriptor, category, projection);
     element.append(sprite);
   } else {
     element.append(
