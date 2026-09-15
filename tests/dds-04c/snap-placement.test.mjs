@@ -332,6 +332,55 @@ test("permitted prototype rotation changes placement deterministically", () => {
   assert.deepEqual(repeated, candidate);
 });
 
+test("FLOOR_EDGE rotation preserves the selected adjacent cell center", () => {
+  const constructionState = new ConstructionState();
+  constructionState.registerModuleDefinition({ id: "def:floor", category: "FLOOR" });
+  constructionState.addModuleInstance({
+    id: "floor:001",
+    definitionId: "def:floor",
+    placementState: "PLACED",
+  });
+
+  const placement = new SnapPlacementFoundation({ constructionState });
+  placement.registerSnapProfile({
+    definitionId: "def:floor",
+    allowedRotations: [0, 90, 180, 270],
+    snapPoints: [
+      {
+        id: "east",
+        connectionClass: "FLOOR_EDGE",
+        compatibleClasses: ["FLOOR_EDGE"],
+        position: { x: 1, y: 0, z: 0 },
+        rotationY: 0,
+      },
+      {
+        id: "west",
+        connectionClass: "FLOOR_EDGE",
+        compatibleClasses: ["FLOOR_EDGE"],
+        position: { x: -1, y: 0, z: 0 },
+        rotationY: 180,
+      },
+    ],
+  });
+
+  const previewAt = (rotation) => placement.previewPlacement({
+    instanceId: "floor:002",
+    definitionId: "def:floor",
+    sourceSnapId: "west",
+    targetInstanceId: "floor:001",
+    targetSnapId: "east",
+    rotation,
+  });
+
+  const unrotated = previewAt(0);
+  placement.clearPreview();
+  const rotated = previewAt(90);
+
+  assert.deepEqual(unrotated.transform.position, { x: 2, y: 0, z: 0 });
+  assert.deepEqual(rotated.transform.position, unrotated.transform.position);
+  assert.notEqual(rotated.transform.rotation.y, unrotated.transform.rotation.y);
+});
+
 test("minimal FLOOR to WALL to CORNER to ROOF chain commits through explicit connections", () => {
   const { constructionState, placement } = createFoundation();
 
