@@ -2,19 +2,187 @@
 <html lang="de">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="description" content="FLOOR Fine Calibration · TESTBUILD 1.8 CALIBRATION – Clean Reference View" />
-    <title>FLOOR Fine Calibration · TESTBUILD 1.8 CALIBRATION</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta
+      name="description"
+      content="FLOOR Fine Calibration · TESTBUILD 1.8 CALIBRATION – Clean Reference View"
+    />
+    <title>FLOOR Fine Calibration · TESTBUILD 1.8 CALIBRATION – Bau & Wolf-Test</title>
     <link rel="stylesheet" href="./src/dds-04f/prototype.css?build=DDS-FLOOR-CAL-TB1.8" />
   </head>
   <body>
     <main class="app-shell" data-build-id="DDS-FLOOR-CAL-TB1.8">
-      <header class="topbar"><div class="title-block"><h1>Baue dein Schweinchen-Haus</h1><p>FLOOR Fine Calibration · TESTBUILD 1.8 CALIBRATION · Clean Reference View.</p></div><div class="status-chip" data-status aria-live="polite">Bauteil wählen und losbauen.</div></header>
-      <section class="scene-card" aria-label="Bauszene"><div class="scene-card__hud"><div class="hud-pill">Teile: <strong data-module-count>1</strong></div><div class="hud-pill" data-snap-state data-valid="false">Noch kein gültiger Platz</div></div><div class="construction-scene" data-scene></div></section>
-      <aside class="panel" aria-labelledby="materials-title"><h2 id="materials-title">Material</h2><div class="material-grid"><button type="button" class="control-button material-button is-active" data-material="STRAW" aria-pressed="true">🌾 Stroh</button><button type="button" class="control-button material-button" data-material="WOOD" aria-pressed="false">🪵 Holz</button><button type="button" class="control-button material-button" data-material="STONE" aria-pressed="false">🪨 Stein</button></div><div class="stability"><div class="stability__row"><span>Stabilität</span><strong data-stability>—</strong></div><div class="stability__meter" data-stability-meter data-level="NONE" role="img" aria-label="Noch keine Stabilitätsanzeige"></div><small>Hinweis, keine exakte Vorhersage des Wolf-Tests.</small></div><p class="build-info">Tippe ein Bauteil in der Szene an, um ihm ein anderes Material zu geben.</p></aside>
-      <section class="piece-tray" aria-labelledby="pieces-title"><h2 id="pieces-title">Bauteile</h2><div class="piece-grid"><button type="button" class="control-button piece-button" data-piece="FLOOR" aria-pressed="false">▱ Boden</button><button type="button" class="control-button piece-button is-active" data-piece="WALL" aria-pressed="true">▮ Wand</button><button type="button" class="control-button piece-button" data-piece="CORNER" aria-pressed="false">⌞ Ecke</button><button type="button" class="control-button piece-button" data-piece="DOOR_OPENING" aria-pressed="false">▯ Tür</button><button type="button" class="control-button piece-button" data-piece="ROOF" aria-pressed="false">⌃ Dach</button><button type="button" class="control-button piece-button" data-piece="BEAM" aria-pressed="false">━ Balken</button></div></section>
-      <aside class="action-tray" aria-labelledby="actions-title"><h2 id="actions-title">Aktionen</h2><div class="action-grid"><button type="button" class="control-button" data-action="rotate">↻ Drehen</button><button type="button" class="control-button" data-action="place">✓ Platzieren</button><button type="button" class="control-button" data-action="undo">↶ Rückgängig</button><button type="button" class="control-button reset-button" data-action="reset">⟳ Neu</button><button type="button" class="control-button wolf-button" data-action="wolf">🐺 Wolf-Test</button></div></aside>
+      <header class="topbar">
+        <div class="title-block">
+          <h1>Baue dein Schweinchen-Haus</h1>
+          <p>FLOOR Fine Calibration · TESTBUILD 1.8 CALIBRATION · Clean Reference View.</p>
+        </div>
+        <div class="status-chip" data-status aria-live="polite">
+          Bauteil wählen und losbauen.
+        </div>
+      </header>
+
+      <section class="scene-card" aria-label="Bauszene">
+        <div class="scene-card__hud">
+          <div class="hud-pill">
+            Teile: <strong data-module-count>1</strong>
+          </div>
+          <div class="hud-pill" data-snap-state data-valid="false">
+            Noch kein gültiger Platz
+          </div>
+        </div>
+        <div class="construction-scene" data-scene></div>
+      </section>
+
+      <aside class="panel" aria-labelledby="materials-title">
+        <h2 id="materials-title">Material</h2>
+        <div class="material-grid">
+          <button
+            type="button"
+            class="control-button material-button is-active"
+            data-material="STRAW"
+            aria-pressed="true"
+          >
+            🌾 Stroh
+          </button>
+          <button
+            type="button"
+            class="control-button material-button"
+            data-material="WOOD"
+            aria-pressed="false"
+          >
+            🪵 Holz
+          </button>
+          <button
+            type="button"
+            class="control-button material-button"
+            data-material="STONE"
+            aria-pressed="false"
+          >
+            🪨 Stein
+          </button>
+        </div>
+
+        <div class="stability">
+          <div class="stability__row">
+            <span>Stabilität</span>
+            <strong data-stability>—</strong>
+          </div>
+          <div
+            class="stability__meter"
+            data-stability-meter
+            data-level="NONE"
+            role="img"
+            aria-label="Noch keine Stabilitätsanzeige"
+          ></div>
+          <small>Hinweis, keine exakte Vorhersage des Wolf-Tests.</small>
+        </div>
+
+        <p class="build-info">
+          Tippe ein Bauteil in der Szene an, um ihm ein anderes Material
+          zu geben.
+        </p>
+      </aside>
+
+      <section class="piece-tray" aria-labelledby="pieces-title">
+        <h2 id="pieces-title">Bauteile</h2>
+        <div class="piece-grid">
+          <button
+            type="button"
+            class="control-button piece-button"
+            data-piece="FLOOR"
+            aria-pressed="false"
+          >
+            ▱ Boden
+          </button>
+          <button
+            type="button"
+            class="control-button piece-button is-active"
+            data-piece="WALL"
+            aria-pressed="true"
+          >
+            ▮ Wand
+          </button>
+          <button
+            type="button"
+            class="control-button piece-button"
+            data-piece="CORNER"
+            aria-pressed="false"
+          >
+            ⌞ Ecke
+          </button>
+          <button
+            type="button"
+            class="control-button piece-button"
+            data-piece="DOOR_OPENING"
+            aria-pressed="false"
+          >
+            ▯ Tür
+          </button>
+          <button
+            type="button"
+            class="control-button piece-button"
+            data-piece="ROOF"
+            aria-pressed="false"
+          >
+            ⌃ Dach
+          </button>
+          <button
+            type="button"
+            class="control-button piece-button"
+            data-piece="BEAM"
+            aria-pressed="false"
+          >
+            ━ Balken
+          </button>
+        </div>
+      </section>
+
+      <aside class="action-tray" aria-labelledby="actions-title">
+        <h2 id="actions-title">Aktionen</h2>
+        <div class="action-grid">
+          <button
+            type="button"
+            class="control-button"
+            data-action="rotate"
+          >
+            ↻ Drehen
+          </button>
+          <button
+            type="button"
+            class="control-button"
+            data-action="place"
+          >
+            ✓ Platzieren
+          </button>
+          <button
+            type="button"
+            class="control-button"
+            data-action="undo"
+          >
+            ↶ Rückgängig
+          </button>
+          <button
+            type="button"
+            class="control-button reset-button"
+            data-action="reset"
+          >
+            ⟳ Neu
+          </button>
+          <button
+            type="button"
+            class="control-button wolf-button"
+            data-action="wolf"
+          >
+            🐺 Wolf-Test
+          </button>
+        </div>
+      </aside>
     </main>
+
     <script type="module" src="./src/dds-04f/browser-app.mjs?build=DDS-FLOOR-CAL-TB1.8"></script>
   </body>
 </html>
