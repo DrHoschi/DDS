@@ -493,10 +493,12 @@ export class SnapPlacementFoundation {
       targetWorldYaw + 180 + request.rotation - sourceSnap.rotationY,
     );
     const sourceWorldOffset = rotateY(sourceSnap.position, incomingYaw);
-    const incomingPosition = subtractVector(
-      targetWorldPosition,
-      sourceWorldOffset,
-    );
+    const floorEdgeToFloorEdge =
+      sourceSnap.connectionClass === "FLOOR_EDGE" &&
+      targetSnap.connectionClass === "FLOOR_EDGE";
+    const incomingPosition = floorEdgeToFloorEdge
+      ? addVector(targetWorldPosition, targetWorldOffset)
+      : subtractVector(targetWorldPosition, sourceWorldOffset);
 
     const transform = {
       position: incomingPosition,
