@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - feature/dds-05a-sprite-construction-presentation
+      - feature/dds-05b-adjacent-cell-authority-implementation
   workflow_dispatch:
 
 permissions:
@@ -21,5 +22,5 @@ jobs:
         with:
           node-version: 22
 
-      - name: Run DDS-04F, DDS-05A and DDS-05B regression tests
-        run: node --test tests/dds-04f/*.test.mjs tests/dds-05a/*.test.mjs tests/dds-05b/*.test.mjs
+      - name: Run DDS-04C, DDS-04F, DDS-05A and DDS-05B regression tests
+        run: node --test tests/dds-04c/*.test.mjs tests/dds-04f/*.test.mjs tests/dds-05a/*.test.mjs tests/dds-05b/*.test.mjs
