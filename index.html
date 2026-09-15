@@ -8,10 +8,10 @@
     />
     <meta
       name="description"
-      content="FLOOR Fine Calibration · TESTBUILD 1.8.2 CALIBRATION – Metric Render Mapping"
+      content="FLOOR Fine Calibration · TESTBUILD 1.8.3 CALIBRATION – TOP↔Anchor Grid Registration"
     />
-    <title>FLOOR Fine Calibration · TESTBUILD 1.8.2 CALIBRATION – Bau & Wolf-Test</title>
-    <link rel="stylesheet" href="./src/dds-04f/prototype.css?build=DDS-FLOOR-CAL-TB1.8.2" />
+    <title>FLOOR Fine Calibration · TESTBUILD 1.8.3 CALIBRATION – Bau & Wolf-Test</title>
+    <link rel="stylesheet" href="./src/dds-04f/prototype.css?build=DDS-FLOOR-CAL-TB1.8.3" />
     <style>
       /* Temporary FLOOR measurement isolation. Render-only; no geometry changes. */
       body:has([data-piece="FLOOR"].is-active) .scene-module.is-ghost {
@@ -45,14 +45,21 @@
           linear-gradient(transparent 8px, #1467d8 8px, #1467d8 10px, transparent 10px),
           linear-gradient(90deg, transparent 8px, #1467d8 8px, #1467d8 10px, transparent 10px);
       }
+
+      /* TESTBUILD 1.8.3: floor_s only. 95 px width => 47.5 px projected grid height;
+         TOP→world-center is half of that = 23.75 asset px. Visible thickness stays below. */
+      .scene-module--floor .scene-module__sprite[data-sprite-frame="floor_s"] {
+        margin-top: -23.75px !important;
+        transform-origin: 47.5px 23.75px !important;
+      }
     </style>
   </head>
   <body>
-    <main class="app-shell" data-build-id="DDS-FLOOR-CAL-TB1.8.2">
+    <main class="app-shell" data-build-id="DDS-FLOOR-CAL-TB1.8.3">
       <header class="topbar">
         <div class="title-block">
           <h1>Baue dein Schweinchen-Haus</h1>
-          <p>FLOOR Fine Calibration · TESTBUILD 1.8.2 CALIBRATION · Metric Render Mapping.</p>
+          <p>FLOOR Fine Calibration · TESTBUILD 1.8.3 CALIBRATION · TOP↔Anchor Grid Registration.</p>
         </div>
         <div class="status-chip" data-status aria-live="polite">
           Bauteil wählen und losbauen.
@@ -217,6 +224,6 @@
       </aside>
     </main>
 
-    <script type="module" src="./src/dds-04f/browser-app.mjs?build=DDS-FLOOR-CAL-TB1.8&rev=DDS-FLOOR-CAL-TB1.8.2"></script>
+    <script type="module" src="./src/dds-04f/browser-app.mjs?build=DDS-FLOOR-CAL-TB1.8&rev=DDS-FLOOR-CAL-TB1.8.3"></script>
   </body>
 </html>
