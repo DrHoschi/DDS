@@ -8,17 +8,51 @@
     />
     <meta
       name="description"
-      content="FLOOR Fine Calibration · TESTBUILD 1.8 CALIBRATION – Clean Reference View"
+      content="FLOOR Fine Calibration · TESTBUILD 1.8.1 CALIBRATION – Clean Measurement Isolation"
     />
-    <title>FLOOR Fine Calibration · TESTBUILD 1.8 CALIBRATION – Bau & Wolf-Test</title>
-    <link rel="stylesheet" href="./src/dds-04f/prototype.css?build=DDS-FLOOR-CAL-TB1.8" />
+    <title>FLOOR Fine Calibration · TESTBUILD 1.8.1 CALIBRATION – Bau & Wolf-Test</title>
+    <link rel="stylesheet" href="./src/dds-04f/prototype.css?build=DDS-FLOOR-CAL-TB1.8.1" />
+    <style>
+      /* Temporary FLOOR measurement isolation. Render-only; no geometry changes. */
+      body:has([data-piece="FLOOR"].is-active) .scene-module.is-ghost {
+        opacity: 1;
+      }
+
+      body:has([data-piece="FLOOR"].is-active) .scene-module.is-ghost .scene-module__sprite {
+        opacity: 1;
+      }
+
+      body:has([data-piece="FLOOR"].is-active) .scene-module.is-ghost.is-valid,
+      body:has([data-piece="FLOOR"].is-active) .scene-module.is-ghost.is-invalid {
+        --state-filter: brightness(1);
+      }
+
+      body:has([data-piece="FLOOR"].is-active) .scene-module:not(.scene-module--floor):not(.is-ghost) {
+        opacity: 0.08;
+      }
+
+      body:has([data-piece="FLOOR"].is-active) button.scene-module--floor::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 18px;
+        height: 18px;
+        transform: translate(-50%, -50%);
+        z-index: 9999;
+        pointer-events: none;
+        background:
+          linear-gradient(transparent 8px, #1467d8 8px, #1467d8 10px, transparent 10px),
+          linear-gradient(90deg, transparent 8px, #1467d8 8px, #1467d8 10px, transparent 10px);
+      }
+    </style>
   </head>
   <body>
-    <main class="app-shell" data-build-id="DDS-FLOOR-CAL-TB1.8">
+    <main class="app-shell" data-build-id="DDS-FLOOR-CAL-TB1.8.1">
       <header class="topbar">
         <div class="title-block">
           <h1>Baue dein Schweinchen-Haus</h1>
-          <p>FLOOR Fine Calibration · TESTBUILD 1.8 CALIBRATION · Clean Reference View.</p>
+          <p>FLOOR Fine Calibration · TESTBUILD 1.8.1 CALIBRATION · Clean Measurement Isolation.</p>
         </div>
         <div class="status-chip" data-status aria-live="polite">
           Bauteil wählen und losbauen.
