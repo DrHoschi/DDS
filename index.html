@@ -5,60 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="description" content="DOOR / BEAM / CORNER Calibration · TESTBUILD 1.9.2" />
     <title>TESTBUILD 1.9.2 – DOOR / BEAM / CORNER Calibration</title>
-    <link rel="stylesheet" href="./src/dds-04f/prototype.css?build=DDS-FLOOR-CAL-TB1.8.11&rev=DDS-DBC-CAL-TB1.9.2" />
+    <link rel="stylesheet" href="./src/dds-04f/prototype.css?build=DDS-FLOOR-CAL-TB1.8.11&rev=DDS-DBC-CAL-TB1.9.2-R1" />
     <style>
-      /* FLOOR 1.8.11 reference remains unchanged. */
       body:has([data-piece="FLOOR"].is-active) .scene-module.is-ghost { opacity: 1; }
       body:has([data-piece="FLOOR"].is-active) .scene-module.is-ghost .scene-module__sprite { opacity: 1; }
       body:has([data-piece="FLOOR"].is-active) .scene-module.is-ghost.is-valid,
       body:has([data-piece="FLOOR"].is-active) .scene-module.is-ghost.is-invalid { --state-filter: brightness(1); }
       body:has([data-piece="FLOOR"].is-active) .scene-module:not(.scene-module--floor):not(.is-ghost) { opacity: 0.08; }
-
       body:has([data-piece="FLOOR"].is-active) button.scene-module--floor::after,
       body:has([data-piece="WALL"].is-active) button.scene-module--wall::after,
       body:has([data-piece="DOOR_OPENING"].is-active) button.scene-module--door_opening::after,
       body:has([data-piece="BEAM"].is-active) button.scene-module--beam::after,
       body:has([data-piece="CORNER"].is-active) button.scene-module--corner::after {
-        content: "";
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        width: 18px;
-        height: 18px;
-        transform: translate(-50%, -50%);
-        z-index: 9999;
-        pointer-events: none;
-        background:
-          linear-gradient(transparent 8px,#d62828 8px,#d62828 10px,transparent 10px),
-          linear-gradient(90deg,transparent 8px,#d62828 8px,#d62828 10px,transparent 10px);
+        content: ""; position: absolute; left: 50%; top: 50%; width: 18px; height: 18px;
+        transform: translate(-50%, -50%); z-index: 9999; pointer-events: none;
+        background: linear-gradient(transparent 8px,#d62828 8px,#d62828 10px,transparent 10px), linear-gradient(90deg,transparent 8px,#d62828 8px,#d62828 10px,transparent 10px);
       }
-
       .scene-module--floor .scene-module__sprite[data-sprite-frame="floor_s"],
       .scene-module--floor .scene-module__sprite[data-sprite-frame="floor_e"],
       .scene-module--floor .scene-module__sprite[data-sprite-frame="floor_n"],
       .scene-module--floor .scene-module__sprite[data-sprite-frame="floor_w"] {
         transform: scaleX(var(--sprite-scale, 1)) scaleY(calc(var(--sprite-scale, 1) * 0.76612903225)) !important;
       }
-
-      .scene-module--wall .scene-module__sprite[data-sprite-frame="wall_s"] {
-        transform: scale(var(--sprite-scale, 1)) !important;
-      }
-
-      /* TESTBUILD 1.9.2: expose the three measured atlas references without changing FLOOR/WALL. */
+      .scene-module--wall .scene-module__sprite[data-sprite-frame="wall_s"] { transform: scale(var(--sprite-scale, 1)) !important; }
       .scene-module--door_opening .scene-module__sprite,
       .scene-module--beam .scene-module__sprite,
-      .scene-module--corner .scene-module__sprite {
-        transform: scale(var(--sprite-scale, 1)) !important;
-      }
+      .scene-module--corner .scene-module__sprite { transform: scale(var(--sprite-scale, 1)) !important; }
     </style>
   </head>
   <body>
-    <main class="app-shell" data-build-id="DDS-DBC-CAL-TB1.9.2">
+    <main class="app-shell" data-build-id="DDS-DBC-CAL-TB1.9.2-R1">
       <header class="topbar">
         <div class="title-block">
           <h1>Baue dein Schweinchen-Haus</h1>
           <p>DOOR / BEAM / CORNER Calibration · TESTBUILD 1.9.2 · EDGE + CORNER Grid-Contract · FLOOR/WALL unverändert.</p>
         </div>
+        <div style="font-size:12px;font-weight:800;white-space:nowrap;">TESTBUILD 1.9.2 · R1</div>
         <div class="status-chip" data-status aria-live="polite">Bauteil wählen und losbauen.</div>
       </header>
       <section class="scene-card" aria-label="Bauszene">
@@ -104,6 +86,6 @@
         </div>
       </aside>
     </main>
-    <script type="module" src="./src/dds-04f/browser-app.mjs?build=DDS-FLOOR-CAL-TB1.8&rev=DDS-DBC-CAL-TB1.9.2"></script>
+    <script type="module" src="./src/dds-04f/browser-app.mjs?build=DDS-FLOOR-CAL-TB1.8&rev=DDS-DBC-CAL-TB1.9.2-R1"></script>
   </body>
 </html>
