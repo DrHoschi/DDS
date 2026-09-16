@@ -19,6 +19,7 @@ const buildIdValid = activeBuildId === EXPECTED_BUILD_ID;
 const GRID_SIZE = 9;
 const GRID_CELL_WORLD_SIZE = 2;
 const FLOOR_ASSET_PPU = 47.5;
+const WALL_S_CONSTRUCTION_SPAN_PX = 69 * (1 - 0.19);
 const GRID_HALF_EXTENT = Math.floor(GRID_SIZE / 2);
 const GRID_ORIGIN_INDEX = GRID_HALF_EXTENT;
 const SVG_NS = "http://www.w3.org/2000/svg";
@@ -191,10 +192,7 @@ function resolveTargetSnap(state, candidate) {
   );
 
   if (!targetInstance) {
-    console.warn(
-      "DDS-05A snap marker target instance missing:",
-      candidate.targetInstanceId,
-    );
+    console.warn("DDS-05A snap marker target instance missing:", candidate.targetInstanceId);
     return null;
   }
 
@@ -203,10 +201,7 @@ function resolveTargetSnap(state, candidate) {
   );
 
   if (!targetProfile) {
-    console.warn(
-      "DDS-05A snap marker profile missing:",
-      targetInstance.definitionId,
-    );
+    console.warn("DDS-05A snap marker profile missing:", targetInstance.definitionId);
     return null;
   }
 
@@ -215,28 +210,20 @@ function resolveTargetSnap(state, candidate) {
   );
 
   if (!targetSnap) {
-    console.warn(
-      "DDS-05A snap marker point missing:",
-      candidate.targetSnapId,
-    );
+    console.warn("DDS-05A snap marker point missing:", candidate.targetSnapId);
     return null;
   }
 
   return {
     targetInstance,
     targetSnap,
-    worldPosition: snapWorldPosition(
-      targetInstance.transform,
-      targetSnap,
-    ),
+    worldPosition: snapWorldPosition(targetInstance.transform, targetSnap),
   };
 }
 
 function makeSnapTarget(candidate, selection, state, projection) {
   const resolved = resolveTargetSnap(state, candidate);
-  if (!resolved) {
-    return null;
-  }
+  if (!resolved) return null;
 
   const element = document.createElement("button");
   const point = scenePoint(resolved.worldPosition, projection);
@@ -244,38 +231,18 @@ function makeSnapTarget(candidate, selection, state, projection) {
   const selected = candidate.key === selection.selectedTargetKey;
 
   element.type = "button";
-  element.className = [
-    "snap-target",
-    recommended ? "is-recommended" : "",
-    selected ? "is-selected" : "",
-  ]
-    .filter(Boolean)
-    .join(" ");
+  element.className = ["snap-target", recommended ? "is-recommended" : "", selected ? "is-selected" : ""].filter(Boolean).join(" ");
   element.style.left = `${point.x}px`;
   element.style.top = `${point.y}px`;
-  element.style.zIndex = String(
-    renderDepth(
-      resolved.targetInstance.transform,
-      `snap:${candidate.key}`,
-    ) + 30,
-  );
+  element.style.zIndex = String(renderDepth(resolved.targetInstance.transform, `snap:${candidate.key}`) + 30);
   element.dataset.snapTarget = candidate.key;
-  element.setAttribute(
-    "aria-label",
-    selected
-      ? "Gewählter Bauplatz"
-      : recommended
-        ? "Empfohlener Bauplatz"
-        : "Gültiger Bauplatz",
-  );
+  element.setAttribute("aria-label", selected ? "Gewählter Bauplatz" : recommended ? "Empfohlener Bauplatz" : "Gültiger Bauplatz");
   element.textContent = selected ? "●" : recommended ? "★" : "+";
-
   element.addEventListener("click", (event) => {
     event.stopPropagation();
     controller.selectSnapTarget(candidate.key);
     render();
   });
-
   return element;
 }
 
@@ -294,7 +261,9 @@ function applySpriteStyle(sprite, descriptor, category, projection) {
   const pivotY = descriptor.anchorY * frame.h;
   const renderScale = category === "FLOOR"
     ? (2 * projection.groundScale) / FLOOR_ASSET_PPU
-    : descriptor.scale;
+    : category === "WALL" && descriptor.key === "wall_s"
+      ? (2 * projection.groundScale) / WALL_S_CONSTRUCTION_SPAN_PX
+      : descriptor.scale;
 
   sprite.style.width = `${frame.w}px`;
   sprite.style.height = `${frame.h}px`;
@@ -302,8 +271,7 @@ function applySpriteStyle(sprite, descriptor, category, projection) {
   sprite.style.marginTop = `${-pivotY}px`;
   sprite.style.backgroundImage = `url("${descriptor.imageUrl}")`;
   sprite.style.backgroundPosition = `-${frame.x}px -${frame.y}px`;
-  sprite.style.backgroundSize =
-    `${descriptor.imageWidth}px ${descriptor.imageHeight}px`;
+  sprite.style.backgroundSize = `${descriptor.imageWidth}px ${descriptor.imageHeight}px`;
   sprite.style.transformOrigin = `${pivotX}px ${pivotY}px`;
   sprite.style.setProperty("--sprite-scale", String(renderScale));
 }
@@ -316,17 +284,11 @@ function makeFallbackShape(category, yaw) {
   return shape;
 }
 
-function makeModule(
-  instance,
-  projection,
-  { ghost = false, valid = true } = {},
-) {
+function makeModule(instance, projection, { ghost = false, valid = true } = {}) {
   const element = document.createElement(ghost ? "div" : "button");
   const point = scenePoint(instance.transform.position, projection);
   const category = instance.category ?? "GHOST";
-  const descriptor = atlasState.package
-    ? spriteDescriptor(instance, atlasState.package)
-    : null;
+  const descriptor = atlasState.package ? spriteDescriptor(instance, atlasState.package) : null;
 
   element.className = [
     "scene-module",
@@ -336,28 +298,18 @@ function makeModule(
     ghost && valid ? "is-valid" : "",
     ghost && !valid ? "is-invalid" : "",
     instance.placementState === "DETACHED" ? "is-detached" : "",
-  ]
-    .filter(Boolean)
-    .join(" ");
+  ].filter(Boolean).join(" ");
 
   element.style.left = `${point.x}px`;
   element.style.top = `${point.y}px`;
-  element.style.zIndex = String(
-    descriptor?.depth ??
-      renderDepth(instance.transform, instance.id ?? `ghost:${category}`),
-  );
-
+  element.style.zIndex = String(descriptor?.depth ?? renderDepth(instance.transform, instance.id ?? `ghost:${category}`));
   element.dataset.material = instance.materialRef ?? "NONE";
 
   if (!ghost) {
     element.type = "button";
     element.dataset.instance = instance.id;
-    element.setAttribute(
-      "aria-label",
-      `${PIECE_LABELS[category] ?? category}, ${MATERIAL_LABELS[instance.materialRef] ?? "ohne Material"}`,
-    );
-    element.title =
-      `${PIECE_LABELS[category] ?? category} · ${MATERIAL_LABELS[instance.materialRef] ?? "ohne Material"}`;
+    element.setAttribute("aria-label", `${PIECE_LABELS[category] ?? category}, ${MATERIAL_LABELS[instance.materialRef] ?? "ohne Material"}`);
+    element.title = `${PIECE_LABELS[category] ?? category} · ${MATERIAL_LABELS[instance.materialRef] ?? "ohne Material"}`;
   } else {
     element.setAttribute("aria-hidden", "true");
   }
@@ -369,9 +321,7 @@ function makeModule(
     applySpriteStyle(sprite, descriptor, category, projection);
     element.append(sprite);
   } else {
-    element.append(
-      makeFallbackShape(category, instance.transform.rotation.y ?? 0),
-    );
+    element.append(makeFallbackShape(category, instance.transform.rotation.y ?? 0));
   }
 
   return element;
@@ -381,7 +331,6 @@ function renderScene(state) {
   scene.replaceChildren();
   scene.classList.toggle("has-atlas", Boolean(atlasState.package));
   scene.classList.toggle("has-atlas-error", Boolean(atlasState.error));
-
   const projection = currentSceneProjection();
 
   const ground = document.createElement("div");
@@ -390,67 +339,41 @@ function renderScene(state) {
   scene.append(ground);
   scene.append(makeConstructionGrid(state, projection));
 
-  const instances = [...state.construction.instances].sort(
-    (a, b) =>
-      renderDepth(a.transform, a.id) - renderDepth(b.transform, b.id),
-  );
-
+  const instances = [...state.construction.instances].sort((a, b) => renderDepth(a.transform, a.id) - renderDepth(b.transform, b.id));
   for (const instance of instances) {
     const element = makeModule(instance, projection);
-
-    if (instance.id === state.ui.selectedInstanceId) {
-      element.classList.add("is-selected");
-    }
-
+    if (instance.id === state.ui.selectedInstanceId) element.classList.add("is-selected");
     element.addEventListener("click", () => {
       controller.selectInstance(instance.id);
       render();
     });
-
     scene.append(element);
   }
 
   const selection = state.ui.targetSelection;
   if (state.ui.selectedPiece !== "FLOOR") {
     for (const candidate of selection.candidates) {
-      const target = makeSnapTarget(
-        candidate,
-        selection,
-        state,
-        projection,
-      );
-      if (target) {
-        scene.append(target);
-      }
+      const target = makeSnapTarget(candidate, selection, state, projection);
+      if (target) scene.append(target);
     }
   }
 
   const ghost = state.placement.ghostPreview;
   if (ghost?.transform) {
-    scene.append(
-      makeModule(
-        {
-          id: "ghost:preview",
-          category: state.ui.selectedPiece,
-          materialRef: state.ui.selectedMaterial,
-          transform: ghost.transform,
-          placementState: "GHOST",
-        },
-        projection,
-        {
-          ghost: true,
-          valid: ghost.valid,
-        },
-      ),
-    );
-    if (state.ui.selectedPiece === "FLOOR") {
+    scene.append(makeModule({
+      id: "ghost:preview",
+      category: state.ui.selectedPiece,
+      materialRef: state.ui.selectedMaterial,
+      transform: ghost.transform,
+      placementState: "GHOST",
+    }, projection, { ghost: true, valid: ghost.valid }));
+    if (state.ui.selectedPiece === "FLOOR" || state.ui.selectedPiece === "WALL") {
       scene.append(makeCalibrationCross(ghost.transform.position, projection));
     }
   }
 
   const snap = document.createElement("div");
-  snap.className =
-    `snap-marker ${ghost?.valid ? "is-valid" : "is-invalid"}`;
+  snap.className = `snap-marker ${ghost?.valid ? "is-valid" : "is-invalid"}`;
   snap.textContent = ghost?.valid ? "✓" : "×";
   snap.setAttribute("aria-hidden", "true");
   scene.append(snap);
@@ -462,7 +385,6 @@ function updateControls(state) {
     button.classList.toggle("is-active", active);
     button.setAttribute("aria-pressed", String(active));
   });
-
   document.querySelectorAll("[data-material]").forEach((button) => {
     const active = button.dataset.material === state.ui.selectedMaterial;
     button.classList.toggle("is-active", active);
@@ -472,37 +394,20 @@ function updateControls(state) {
   const ghost = state.placement.ghostPreview;
   placeButton.disabled = !ghost?.valid;
   undoButton.disabled = state.placement.historyDepth === 0;
-
-  snapState.textContent = ghost?.valid
-    ? "Einrasten möglich ✓"
-    : "Noch kein gültiger Platz";
+  snapState.textContent = ghost?.valid ? "Einrasten möglich ✓" : "Noch kein gültiger Platz";
   snapState.dataset.valid = String(Boolean(ghost?.valid));
-
-  statusText.textContent = buildIdValid
-    ? state.ui.status
-    : "TESTBUILD ungültig: Calibration Build-ID fehlt oder stimmt nicht.";
+  statusText.textContent = buildIdValid ? state.ui.status : "TESTBUILD ungültig: Calibration Build-ID fehlt oder stimmt nicht.";
   moduleCount.textContent = String(state.construction.instances.length);
 
   if (state.stability) {
-    const levelLabel = {
-      WEAK: "Schwach",
-      MEDIUM: "Mittel",
-      STABLE: "Stabil",
-    }[state.stability.level];
-
+    const levelLabel = { WEAK: "Schwach", MEDIUM: "Mittel", STABLE: "Stabil" }[state.stability.level];
     stabilityText.textContent = levelLabel;
     stabilityMeter.dataset.level = state.stability.level;
-    stabilityMeter.setAttribute(
-      "aria-label",
-      `Stabilität: ${levelLabel}, nur Hinweis`,
-    );
+    stabilityMeter.setAttribute("aria-label", `Stabilität: ${levelLabel}, nur Hinweis`);
   } else {
     stabilityText.textContent = "—";
     stabilityMeter.dataset.level = "NONE";
-    stabilityMeter.setAttribute(
-      "aria-label",
-      "Noch keine Stabilitätsanzeige",
-    );
+    stabilityMeter.setAttribute("aria-label", "Noch keine Stabilitätsanzeige");
   }
 }
 
@@ -526,68 +431,47 @@ document.querySelectorAll("[data-material]").forEach((button) => {
   });
 });
 
-document
-  .querySelector("[data-action='rotate']")
-  .addEventListener("click", () => {
-    controller.rotate();
-    render();
-  });
-
+document.querySelector("[data-action='rotate']").addEventListener("click", () => {
+  controller.rotate();
+  render();
+});
 placeButton.addEventListener("click", () => {
   controller.place();
   render();
 });
-
 undoButton.addEventListener("click", () => {
   controller.undo();
   render();
 });
-
-document
-  .querySelector("[data-action='reset']")
-  .addEventListener("click", () => {
-    controller.reset();
-    render();
-  });
-
-document
-  .querySelector("[data-action='wolf']")
-  .addEventListener("click", () => {
-    controller.wolfTest();
-    render();
-  });
+document.querySelector("[data-action='reset']").addEventListener("click", () => {
+  controller.reset();
+  render();
+});
+document.querySelector("[data-action='wolf']").addEventListener("click", () => {
+  controller.wolfTest();
+  render();
+});
 
 if (typeof ResizeObserver === "function") {
   let lastWidth = null;
   let lastHeight = null;
-
   const resizeObserver = new ResizeObserver((entries) => {
     const entry = entries[0];
     const width = entry?.contentRect?.width;
     const height = entry?.contentRect?.height;
-
-    if (
-      Number.isFinite(width) &&
-      Number.isFinite(height) &&
-      width > 0 &&
-      height > 0 &&
-      (width !== lastWidth || height !== lastHeight)
-    ) {
+    if (Number.isFinite(width) && Number.isFinite(height) && width > 0 && height > 0 && (width !== lastWidth || height !== lastHeight)) {
       lastWidth = width;
       lastHeight = height;
       render();
     }
   });
-
   resizeObserver.observe(scene);
 }
 
 render();
 
 if (!buildIdValid) {
-  atlasState.error = new Error(
-    `Invalid calibration test build id: ${activeBuildId ?? "missing"}`,
-  );
+  atlasState.error = new Error(`Invalid calibration test build id: ${activeBuildId ?? "missing"}`);
   render();
 } else {
   loadConstructionAtlas(atlasManifestUrl)
