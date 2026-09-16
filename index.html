@@ -3,15 +3,13 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="description" content="FLOOR Fine Calibration · TESTBUILD 1.8.9 · anchor alignment only" />
-    <title>FLOOR Fine Calibration · TESTBUILD 1.8.9 – Bau & Wolf-Test</title>
-    <link rel="stylesheet" href="./src/dds-04f/prototype.css?build=DDS-FLOOR-CAL-TB1.8.9" />
+    <meta name="description" content="FLOOR Fine Calibration · TESTBUILD 1.8.10 · calibrated floor_s for every floor instance" />
+    <title>FLOOR Fine Calibration · TESTBUILD 1.8.10 – Bau & Wolf-Test</title>
+    <link rel="stylesheet" href="./src/dds-04f/prototype.css?build=DDS-FLOOR-CAL-TB1.8.10" />
     <style>
-      /* TESTBUILD 1.8.9: preserve the verified 1.8.8 X/Y scale exactly.
-         Position-only correction: the atlas anchor itself is the bottom/front
-         vertex of the walkable top surface. Therefore no additional translateY
-         is allowed; the stored anchor is aligned directly with the module/grid
-         reference cross. Orange thickness remains render-only overhang. */
+      /* TESTBUILD 1.8.10: preserve the verified 1.8.9 floor_s calibration.
+         Every FLOOR instance now resolves to that same calibrated floor_s frame;
+         its own world position alone determines the occupied grid diamond. */
       body:has([data-piece="FLOOR"].is-active) .scene-module.is-ghost { opacity: 1; }
       body:has([data-piece="FLOOR"].is-active) .scene-module.is-ghost .scene-module__sprite { opacity: 1; }
       body:has([data-piece="FLOOR"].is-active) .scene-module.is-ghost.is-valid,
@@ -41,11 +39,11 @@
     </style>
   </head>
   <body>
-    <main class="app-shell" data-build-id="DDS-FLOOR-CAL-TB1.8.9">
+    <main class="app-shell" data-build-id="DDS-FLOOR-CAL-TB1.8.10">
       <header class="topbar">
         <div class="title-block">
           <h1>Baue dein Schweinchen-Haus</h1>
-          <p>FLOOR Fine Calibration · TESTBUILD 1.8.9 · Anchor → Top-Surface-Eckpunkt · Skalierung unverändert.</p>
+          <p>FLOOR Fine Calibration · TESTBUILD 1.8.10 · Alle Bodeninstanzen = kalibriertes floor_s · eigenes Gridfeld.</p>
         </div>
         <div class="status-chip" data-status aria-live="polite">Bauteil wählen und losbauen.</div>
       </header>
@@ -92,6 +90,6 @@
         </div>
       </aside>
     </main>
-    <script type="module" src="./src/dds-04f/browser-app.mjs?build=DDS-FLOOR-CAL-TB1.8&rev=DDS-FLOOR-CAL-TB1.8.9"></script>
+    <script type="module" src="./src/dds-04f/browser-app.mjs?build=DDS-FLOOR-CAL-TB1.8&rev=DDS-FLOOR-CAL-TB1.8.10"></script>
   </body>
 </html>
