@@ -2,34 +2,22 @@
 <html lang="de">
   <head>
     <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover"
-    />
-    <meta
-      name="description"
-      content="FLOOR Fine Calibration · TESTBUILD 1.8.5 CALIBRATION – Original Anchor to Bottom Grid Crossing"
-    />
-    <title>FLOOR Fine Calibration · TESTBUILD 1.8.5 CALIBRATION – Bau & Wolf-Test</title>
-    <link rel="stylesheet" href="./src/dds-04f/prototype.css?build=DDS-FLOOR-CAL-TB1.8.5" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="description" content="FLOOR Fine Calibration · TESTBUILD 1.8.6 · Top-surface footprint to grid" />
+    <title>FLOOR Fine Calibration · TESTBUILD 1.8.6 – Bau & Wolf-Test</title>
+    <link rel="stylesheet" href="./src/dds-04f/prototype.css?build=DDS-FLOOR-CAL-TB1.8.6" />
     <style>
-      /* Temporary FLOOR measurement isolation. Render-only; no geometry changes. */
-      body:has([data-piece="FLOOR"].is-active) .scene-module.is-ghost {
-        opacity: 1;
-      }
-
-      body:has([data-piece="FLOOR"].is-active) .scene-module.is-ghost .scene-module__sprite {
-        opacity: 1;
-      }
-
+      /* FLOOR calibration contract:
+         green grid = world authority;
+         visible top surface = footprint authority;
+         orange thickness/overhang is render-only;
+         frame bounds are crop-only;
+         the anchor is the bottom vertex of the TOP SURFACE, not frame bottom. */
+      body:has([data-piece="FLOOR"].is-active) .scene-module.is-ghost { opacity: 1; }
+      body:has([data-piece="FLOOR"].is-active) .scene-module.is-ghost .scene-module__sprite { opacity: 1; }
       body:has([data-piece="FLOOR"].is-active) .scene-module.is-ghost.is-valid,
-      body:has([data-piece="FLOOR"].is-active) .scene-module.is-ghost.is-invalid {
-        --state-filter: brightness(1);
-      }
-
-      body:has([data-piece="FLOOR"].is-active) .scene-module:not(.scene-module--floor):not(.is-ghost) {
-        opacity: 0.08;
-      }
+      body:has([data-piece="FLOOR"].is-active) .scene-module.is-ghost.is-invalid { --state-filter: brightness(1); }
+      body:has([data-piece="FLOOR"].is-active) .scene-module:not(.scene-module--floor):not(.is-ghost) { opacity: 0.08; }
 
       body:has([data-piece="FLOOR"].is-active) button.scene-module--floor::after {
         content: "";
@@ -42,188 +30,74 @@
         z-index: 9999;
         pointer-events: none;
         background:
-          linear-gradient(transparent 8px, #1467d8 8px, #1467d8 10px, transparent 10px),
-          linear-gradient(90deg, transparent 8px, #1467d8 8px, #1467d8 10px, transparent 10px);
+          linear-gradient(transparent 8px,#d62828 8px,#d62828 10px,transparent 10px),
+          linear-gradient(90deg,transparent 8px,#d62828 8px,#d62828 10px,transparent 10px);
       }
 
-      /* TESTBUILD 1.8.5: keep the original atlas anchor and metric width/scale.
-         Move that unchanged anchor from the cell center to the bottom grid crossing.
-         23.75 asset px × metric scale = one projected half-cell (groundScale). */
+      /* TESTBUILD 1.8.6
+         floor_s atlas anchor is y=0.419*74≈31 px. The intended anchor from the
+         reference drawing is the bottom vertex of the visible top surface,
+         ≈23.75 asset px BELOW that stored point. Therefore the bitmap must move
+         UP by 23.75 asset px. 1.8.5 used the opposite sign and moved it down.
+         Width remains metric: browser-app derives scale from grid groundScale,
+         so iPhone/iPad scale the grid and footprint together. */
       .scene-module--floor .scene-module__sprite[data-sprite-frame="floor_s"] {
-        transform: scale(var(--sprite-scale, 1)) translateY(23.75px) !important;
+        transform: scale(var(--sprite-scale, 1)) translateY(-23.75px) !important;
       }
     </style>
   </head>
   <body>
-    <main class="app-shell" data-build-id="DDS-FLOOR-CAL-TB1.8.5">
+    <main class="app-shell" data-build-id="DDS-FLOOR-CAL-TB1.8.6">
       <header class="topbar">
         <div class="title-block">
           <h1>Baue dein Schweinchen-Haus</h1>
-          <p>FLOOR Fine Calibration · TESTBUILD 1.8.5 CALIBRATION · Original Anchor → Bottom Grid Crossing.</p>
+          <p>FLOOR Fine Calibration · TESTBUILD 1.8.6 · Top-Surface Footprint → Grid · Orange = Überstand.</p>
         </div>
-        <div class="status-chip" data-status aria-live="polite">
-          Bauteil wählen und losbauen.
-        </div>
+        <div class="status-chip" data-status aria-live="polite">Bauteil wählen und losbauen.</div>
       </header>
-
       <section class="scene-card" aria-label="Bauszene">
         <div class="scene-card__hud">
-          <div class="hud-pill">
-            Teile: <strong data-module-count>1</strong>
-          </div>
-          <div class="hud-pill" data-snap-state data-valid="false">
-            Noch kein gültiger Platz
-          </div>
+          <div class="hud-pill">Teile: <strong data-module-count>1</strong></div>
+          <div class="hud-pill" data-snap-state data-valid="false">Noch kein gültiger Platz</div>
         </div>
         <div class="construction-scene" data-scene></div>
       </section>
-
       <aside class="panel" aria-labelledby="materials-title">
         <h2 id="materials-title">Material</h2>
         <div class="material-grid">
-          <button
-            type="button"
-            class="control-button material-button is-active"
-            data-material="STRAW"
-            aria-pressed="true"
-          >
-            🌾 Stroh
-          </button>
-          <button
-            type="button"
-            class="control-button material-button"
-            data-material="WOOD"
-            aria-pressed="false"
-          >
-            🪵 Holz
-          </button>
-          <button
-            type="button"
-            class="control-button material-button"
-            data-material="STONE"
-            aria-pressed="false"
-          >
-            🪨 Stein
-          </button>
+          <button type="button" class="control-button material-button is-active" data-material="STRAW" aria-pressed="true">🌾 Stroh</button>
+          <button type="button" class="control-button material-button" data-material="WOOD" aria-pressed="false">🪵 Holz</button>
+          <button type="button" class="control-button material-button" data-material="STONE" aria-pressed="false">🪨 Stein</button>
         </div>
-
         <div class="stability">
-          <div class="stability__row">
-            <span>Stabilität</span>
-            <strong data-stability>—</strong>
-          </div>
-          <div
-            class="stability__meter"
-            data-stability-meter
-            data-level="NONE"
-            role="img"
-            aria-label="Noch keine Stabilitätsanzeige"
-          ></div>
+          <div class="stability__row"><span>Stabilität</span><strong data-stability>—</strong></div>
+          <div class="stability__meter" data-stability-meter data-level="NONE" role="img" aria-label="Noch keine Stabilitätsanzeige"></div>
           <small>Hinweis, keine exakte Vorhersage des Wolf-Tests.</small>
         </div>
-
-        <p class="build-info">
-          Tippe ein Bauteil in der Szene an, um ihm ein anderes Material
-          zu geben.
-        </p>
+        <p class="build-info">Tippe ein Bauteil in der Szene an, um ihm ein anderes Material zu geben.</p>
       </aside>
-
       <section class="piece-tray" aria-labelledby="pieces-title">
         <h2 id="pieces-title">Bauteile</h2>
         <div class="piece-grid">
-          <button
-            type="button"
-            class="control-button piece-button"
-            data-piece="FLOOR"
-            aria-pressed="false"
-          >
-            ▱ Boden
-          </button>
-          <button
-            type="button"
-            class="control-button piece-button is-active"
-            data-piece="WALL"
-            aria-pressed="true"
-          >
-            ▮ Wand
-          </button>
-          <button
-            type="button"
-            class="control-button piece-button"
-            data-piece="CORNER"
-            aria-pressed="false"
-          >
-            ⌞ Ecke
-          </button>
-          <button
-            type="button"
-            class="control-button piece-button"
-            data-piece="DOOR_OPENING"
-            aria-pressed="false"
-          >
-            ▯ Tür
-          </button>
-          <button
-            type="button"
-            class="control-button piece-button"
-            data-piece="ROOF"
-            aria-pressed="false"
-          >
-            ⌃ Dach
-          </button>
-          <button
-            type="button"
-            class="control-button piece-button"
-            data-piece="BEAM"
-            aria-pressed="false"
-          >
-            ━ Balken
-          </button>
+          <button type="button" class="control-button piece-button" data-piece="FLOOR" aria-pressed="false">▱ Boden</button>
+          <button type="button" class="control-button piece-button is-active" data-piece="WALL" aria-pressed="true">▮ Wand</button>
+          <button type="button" class="control-button piece-button" data-piece="CORNER" aria-pressed="false">⌞ Ecke</button>
+          <button type="button" class="control-button piece-button" data-piece="DOOR_OPENING" aria-pressed="false">▯ Tür</button>
+          <button type="button" class="control-button piece-button" data-piece="ROOF" aria-pressed="false">⌃ Dach</button>
+          <button type="button" class="control-button piece-button" data-piece="BEAM" aria-pressed="false">━ Balken</button>
         </div>
       </section>
-
       <aside class="action-tray" aria-labelledby="actions-title">
         <h2 id="actions-title">Aktionen</h2>
         <div class="action-grid">
-          <button
-            type="button"
-            class="control-button"
-            data-action="rotate"
-          >
-            ↻ Drehen
-          </button>
-          <button
-            type="button"
-            class="control-button"
-            data-action="place"
-          >
-            ✓ Platzieren
-          </button>
-          <button
-            type="button"
-            class="control-button"
-            data-action="undo"
-          >
-            ↶ Rückgängig
-          </button>
-          <button
-            type="button"
-            class="control-button reset-button"
-            data-action="reset"
-          >
-            ⟳ Neu
-          </button>
-          <button
-            type="button"
-            class="control-button wolf-button"
-            data-action="wolf"
-          >
-            🐺 Wolf-Test
-          </button>
+          <button type="button" class="control-button" data-action="rotate">↻ Drehen</button>
+          <button type="button" class="control-button" data-action="place">✓ Platzieren</button>
+          <button type="button" class="control-button" data-action="undo">↶ Rückgängig</button>
+          <button type="button" class="control-button reset-button" data-action="reset">⟳ Neu</button>
+          <button type="button" class="control-button wolf-button" data-action="wolf">🐺 Wolf-Test</button>
         </div>
       </aside>
     </main>
-
-    <script type="module" src="./src/dds-04f/browser-app.mjs?build=DDS-FLOOR-CAL-TB1.8&rev=DDS-FLOOR-CAL-TB1.8.5"></script>
+    <script type="module" src="./src/dds-04f/browser-app.mjs?build=DDS-FLOOR-CAL-TB1.8&rev=DDS-FLOOR-CAL-TB1.8.6"></script>
   </body>
 </html>
