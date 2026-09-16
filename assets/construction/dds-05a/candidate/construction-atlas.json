@@ -75,10 +75,10 @@
     "foundation_ghost":{"frame":{"x":1250,"y":730,"w":100,"h":100},"anchorX":0.5,"anchorY":0.9,"scale":1},
     "foundation_invalid":{"frame":{"x":1390,"y":730,"w":100,"h":100},"anchorX":0.5,"anchorY":0.9,"scale":1},
     "stairs":{"frame":{"x":65,"y":830,"w":137,"h":155},"anchorX":0.5,"anchorY":1,"scale":1},
-    "railing":{"frame":{"x":279,"y":849,"w":128,"h":130},"anchorX":0.5,"anchorY":1,"scale":1},
-    "support":{"frame":{"x":457,"y":844,"w":87,"h":135},"anchorX":0.5,"anchorY":1,"scale":1},
+    "railing":{"frame":{"x":279,"y":849,"w":128,"h":130},"anchorX":0.14,"anchorY":1,"scale":1},
+    "support":{"frame":{"x":457,"y":844,"w":87,"h":135},"anchorX":0.33,"anchorY":1,"scale":1},
     "post":{"frame":{"x":633,"y":850,"w":51,"h":123},"anchorX":0.5,"anchorY":1,"scale":1},
-    "half_wall":{"frame":{"x":786,"y":846,"w":118,"h":133},"anchorX":0.5,"anchorY":1,"scale":1},
+    "half_wall":{"frame":{"x":786,"y":846,"w":118,"h":132},"anchorX":0.15,"anchorY":1,"scale":1},
     "corner":{"frame":{"x":1000,"y":384,"w":70,"h":113},"anchorX":0.5,"anchorY":1,"scale":1}
   }
 }
