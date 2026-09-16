@@ -3,28 +3,13 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="description" content="FLOOR Fine Calibration · TESTBUILD 1.8.7 · 95x31 top-surface footprint to 2x2 world grid" />
-    <title>FLOOR Fine Calibration · TESTBUILD 1.8.7 – Bau & Wolf-Test</title>
-    <link rel="stylesheet" href="./src/dds-04f/prototype.css?build=DDS-FLOOR-CAL-TB1.8.7" />
+    <meta name="description" content="FLOOR Fine Calibration · TESTBUILD 1.8.8 · one grid diamond per floor" />
+    <title>FLOOR Fine Calibration · TESTBUILD 1.8.8 – Bau & Wolf-Test</title>
+    <link rel="stylesheet" href="./src/dds-04f/prototype.css?build=DDS-FLOOR-CAL-TB1.8.8" />
     <style>
-      /* TESTBUILD 1.8.7 calibration contract
-         floor_s frame = 95 x 74 px.
-         Stored anchor = (0.5, 0.419) = (47.5, ~31.0) px.
-         For this calibration the top-surface footprint is therefore 95 x 31 px:
-         frame top -> anchor vertically, full frame width horizontally.
-
-         The projected 2 x 2 world cell is 4*groundScale wide and 2*groundScale high.
-         browser-app already derives --sprite-scale = 4*groundScale/95 from width.
-         The missing Y correction is therefore:
-           scaleY/scaleX = (2g/31) / (4g/95) = 95/62 = 1.5322580645.
-
-         The module origin is the grid-cell centre. The atlas anchor represents the
-         BOTTOM vertex of the top surface, which is one half-cell (= groundScale)
-         below that centre. 15.5 source px * (2g/31) = groundScale.
-
-         Result: frame left/right -> grid left/right, frame top centre -> grid top,
-         atlas anchor -> grid bottom. Pixels below the anchor are render-only
-         thickness/overhang and do not participate in footprint sizing. */
+      /* TESTBUILD 1.8.8: keep the horizontally verified 1.8.7 fit unchanged.
+         Only halve floor_s vertical scale: one grid diamond = one floor field.
+         Orange pixels below the top-surface anchor remain render-only overhang. */
       body:has([data-piece="FLOOR"].is-active) .scene-module.is-ghost { opacity: 1; }
       body:has([data-piece="FLOOR"].is-active) .scene-module.is-ghost .scene-module__sprite { opacity: 1; }
       body:has([data-piece="FLOOR"].is-active) .scene-module.is-ghost.is-valid,
@@ -49,17 +34,17 @@
       .scene-module--floor .scene-module__sprite[data-sprite-frame="floor_s"] {
         transform:
           scaleX(var(--sprite-scale, 1))
-          scaleY(calc(var(--sprite-scale, 1) * 1.5322580645))
+          scaleY(calc(var(--sprite-scale, 1) * 0.76612903225))
           translateY(15.5px) !important;
       }
     </style>
   </head>
   <body>
-    <main class="app-shell" data-build-id="DDS-FLOOR-CAL-TB1.8.7">
+    <main class="app-shell" data-build-id="DDS-FLOOR-CAL-TB1.8.8">
       <header class="topbar">
         <div class="title-block">
           <h1>Baue dein Schweinchen-Haus</h1>
-          <p>FLOOR Fine Calibration · TESTBUILD 1.8.7 · 95×31 Top-Surface → 2×2 Grid · Orange = Überstand.</p>
+          <p>FLOOR Fine Calibration · TESTBUILD 1.8.8 · 1 Grid-Raute = 1 Bodenfeld · X unverändert.</p>
         </div>
         <div class="status-chip" data-status aria-live="polite">Bauteil wählen und losbauen.</div>
       </header>
@@ -106,6 +91,6 @@
         </div>
       </aside>
     </main>
-    <script type="module" src="./src/dds-04f/browser-app.mjs?build=DDS-FLOOR-CAL-TB1.8&rev=DDS-FLOOR-CAL-TB1.8.7"></script>
+    <script type="module" src="./src/dds-04f/browser-app.mjs?build=DDS-FLOOR-CAL-TB1.8&rev=DDS-FLOOR-CAL-TB1.8.8"></script>
   </body>
 </html>
