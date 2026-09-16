@@ -51,6 +51,14 @@ export function spriteFrameKey(category, yaw = 0) {
     throw new Error(`Unsupported DDS-05A sprite category: ${category}`);
   }
 
+  // FLOOR is a world-aligned square footprint. TESTBUILD 1.8.9 calibrated
+  // floor_s against exactly one projected grid diamond. Reuse that verified
+  // render frame for every FLOOR instance; only the instance world position
+  // determines which grid cell it occupies. Other categories retain yaw frames.
+  if (category === "FLOOR") {
+    return "floor_s";
+  }
+
   return `${family}_${YAW_TO_DIRECTION[normalizeYaw(yaw)]}`;
 }
 
