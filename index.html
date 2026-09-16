@@ -3,13 +3,15 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="description" content="FLOOR Fine Calibration · TESTBUILD 1.8.8 · one grid diamond per floor" />
-    <title>FLOOR Fine Calibration · TESTBUILD 1.8.8 – Bau & Wolf-Test</title>
-    <link rel="stylesheet" href="./src/dds-04f/prototype.css?build=DDS-FLOOR-CAL-TB1.8.8" />
+    <meta name="description" content="FLOOR Fine Calibration · TESTBUILD 1.8.9 · anchor alignment only" />
+    <title>FLOOR Fine Calibration · TESTBUILD 1.8.9 – Bau & Wolf-Test</title>
+    <link rel="stylesheet" href="./src/dds-04f/prototype.css?build=DDS-FLOOR-CAL-TB1.8.9" />
     <style>
-      /* TESTBUILD 1.8.8: keep the horizontally verified 1.8.7 fit unchanged.
-         Only halve floor_s vertical scale: one grid diamond = one floor field.
-         Orange pixels below the top-surface anchor remain render-only overhang. */
+      /* TESTBUILD 1.8.9: preserve the verified 1.8.8 X/Y scale exactly.
+         Position-only correction: the atlas anchor itself is the bottom/front
+         vertex of the walkable top surface. Therefore no additional translateY
+         is allowed; the stored anchor is aligned directly with the module/grid
+         reference cross. Orange thickness remains render-only overhang. */
       body:has([data-piece="FLOOR"].is-active) .scene-module.is-ghost { opacity: 1; }
       body:has([data-piece="FLOOR"].is-active) .scene-module.is-ghost .scene-module__sprite { opacity: 1; }
       body:has([data-piece="FLOOR"].is-active) .scene-module.is-ghost.is-valid,
@@ -34,17 +36,16 @@
       .scene-module--floor .scene-module__sprite[data-sprite-frame="floor_s"] {
         transform:
           scaleX(var(--sprite-scale, 1))
-          scaleY(calc(var(--sprite-scale, 1) * 0.76612903225))
-          translateY(15.5px) !important;
+          scaleY(calc(var(--sprite-scale, 1) * 0.76612903225)) !important;
       }
     </style>
   </head>
   <body>
-    <main class="app-shell" data-build-id="DDS-FLOOR-CAL-TB1.8.8">
+    <main class="app-shell" data-build-id="DDS-FLOOR-CAL-TB1.8.9">
       <header class="topbar">
         <div class="title-block">
           <h1>Baue dein Schweinchen-Haus</h1>
-          <p>FLOOR Fine Calibration · TESTBUILD 1.8.8 · 1 Grid-Raute = 1 Bodenfeld · X unverändert.</p>
+          <p>FLOOR Fine Calibration · TESTBUILD 1.8.9 · Anchor → Top-Surface-Eckpunkt · Skalierung unverändert.</p>
         </div>
         <div class="status-chip" data-status aria-live="polite">Bauteil wählen und losbauen.</div>
       </header>
@@ -91,6 +92,6 @@
         </div>
       </aside>
     </main>
-    <script type="module" src="./src/dds-04f/browser-app.mjs?build=DDS-FLOOR-CAL-TB1.8&rev=DDS-FLOOR-CAL-TB1.8.8"></script>
+    <script type="module" src="./src/dds-04f/browser-app.mjs?build=DDS-FLOOR-CAL-TB1.8&rev=DDS-FLOOR-CAL-TB1.8.9"></script>
   </body>
 </html>
