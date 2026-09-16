@@ -3,9 +3,9 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="description" content="WALL Calibration · TESTBUILD 1.9.1 · grid-corner placement contract" />
-    <title>WALL Calibration · TESTBUILD 1.9.1 – Bau & Wolf-Test</title>
-    <link rel="stylesheet" href="./src/dds-04f/prototype.css?build=DDS-FLOOR-CAL-TB1.8.11" />
+    <meta name="description" content="DOOR / BEAM / CORNER Calibration · TESTBUILD 1.9.2" />
+    <title>TESTBUILD 1.9.2 – DOOR / BEAM / CORNER Calibration</title>
+    <link rel="stylesheet" href="./src/dds-04f/prototype.css?build=DDS-FLOOR-CAL-TB1.8.11&rev=DDS-DBC-CAL-TB1.9.2" />
     <style>
       /* FLOOR 1.8.11 reference remains unchanged. */
       body:has([data-piece="FLOOR"].is-active) .scene-module.is-ghost { opacity: 1; }
@@ -15,7 +15,10 @@
       body:has([data-piece="FLOOR"].is-active) .scene-module:not(.scene-module--floor):not(.is-ghost) { opacity: 0.08; }
 
       body:has([data-piece="FLOOR"].is-active) button.scene-module--floor::after,
-      body:has([data-piece="WALL"].is-active) button.scene-module--wall::after {
+      body:has([data-piece="WALL"].is-active) button.scene-module--wall::after,
+      body:has([data-piece="DOOR_OPENING"].is-active) button.scene-module--door_opening::after,
+      body:has([data-piece="BEAM"].is-active) button.scene-module--beam::after,
+      body:has([data-piece="CORNER"].is-active) button.scene-module--corner::after {
         content: "";
         position: absolute;
         left: 50%;
@@ -34,22 +37,27 @@
       .scene-module--floor .scene-module__sprite[data-sprite-frame="floor_e"],
       .scene-module--floor .scene-module__sprite[data-sprite-frame="floor_n"],
       .scene-module--floor .scene-module__sprite[data-sprite-frame="floor_w"] {
-        transform:
-          scaleX(var(--sprite-scale, 1))
-          scaleY(calc(var(--sprite-scale, 1) * 0.76612903225)) !important;
+        transform: scaleX(var(--sprite-scale, 1)) scaleY(calc(var(--sprite-scale, 1) * 0.76612903225)) !important;
       }
 
       .scene-module--wall .scene-module__sprite[data-sprite-frame="wall_s"] {
         transform: scale(var(--sprite-scale, 1)) !important;
       }
+
+      /* TESTBUILD 1.9.2: expose the three measured atlas references without changing FLOOR/WALL. */
+      .scene-module--door_opening .scene-module__sprite,
+      .scene-module--beam .scene-module__sprite,
+      .scene-module--corner .scene-module__sprite {
+        transform: scale(var(--sprite-scale, 1)) !important;
+      }
     </style>
   </head>
   <body>
-    <main class="app-shell" data-build-id="DDS-WALL-CAL-TB1.9.1">
+    <main class="app-shell" data-build-id="DDS-DBC-CAL-TB1.9.2">
       <header class="topbar">
         <div class="title-block">
           <h1>Baue dein Schweinchen-Haus</h1>
-          <p>WALL Calibration · TESTBUILD 1.9.1 · WALL-Anchor = echtes Grid-Kreuz · FLOOR 1.8.11 unverändert.</p>
+          <p>DOOR / BEAM / CORNER Calibration · TESTBUILD 1.9.2 · EDGE + CORNER Grid-Contract · FLOOR/WALL unverändert.</p>
         </div>
         <div class="status-chip" data-status aria-live="polite">Bauteil wählen und losbauen.</div>
       </header>
@@ -96,6 +104,6 @@
         </div>
       </aside>
     </main>
-    <script type="module" src="./src/dds-04f/browser-app.mjs?build=DDS-FLOOR-CAL-TB1.8&rev=DDS-WALL-CAL-TB1.9.1"></script>
+    <script type="module" src="./src/dds-04f/browser-app.mjs?build=DDS-FLOOR-CAL-TB1.8&rev=DDS-DBC-CAL-TB1.9.2"></script>
   </body>
 </html>
