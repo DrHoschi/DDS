@@ -3,16 +3,28 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="description" content="FLOOR Fine Calibration · TESTBUILD 1.8.6 · Top-surface footprint to grid" />
-    <title>FLOOR Fine Calibration · TESTBUILD 1.8.6 – Bau & Wolf-Test</title>
-    <link rel="stylesheet" href="./src/dds-04f/prototype.css?build=DDS-FLOOR-CAL-TB1.8.6" />
+    <meta name="description" content="FLOOR Fine Calibration · TESTBUILD 1.8.7 · 95x31 top-surface footprint to 2x2 world grid" />
+    <title>FLOOR Fine Calibration · TESTBUILD 1.8.7 – Bau & Wolf-Test</title>
+    <link rel="stylesheet" href="./src/dds-04f/prototype.css?build=DDS-FLOOR-CAL-TB1.8.7" />
     <style>
-      /* FLOOR calibration contract:
-         green grid = world authority;
-         visible top surface = footprint authority;
-         orange thickness/overhang is render-only;
-         frame bounds are crop-only;
-         the anchor is the bottom vertex of the TOP SURFACE, not frame bottom. */
+      /* TESTBUILD 1.8.7 calibration contract
+         floor_s frame = 95 x 74 px.
+         Stored anchor = (0.5, 0.419) = (47.5, ~31.0) px.
+         For this calibration the top-surface footprint is therefore 95 x 31 px:
+         frame top -> anchor vertically, full frame width horizontally.
+
+         The projected 2 x 2 world cell is 4*groundScale wide and 2*groundScale high.
+         browser-app already derives --sprite-scale = 4*groundScale/95 from width.
+         The missing Y correction is therefore:
+           scaleY/scaleX = (2g/31) / (4g/95) = 95/62 = 1.5322580645.
+
+         The module origin is the grid-cell centre. The atlas anchor represents the
+         BOTTOM vertex of the top surface, which is one half-cell (= groundScale)
+         below that centre. 15.5 source px * (2g/31) = groundScale.
+
+         Result: frame left/right -> grid left/right, frame top centre -> grid top,
+         atlas anchor -> grid bottom. Pixels below the anchor are render-only
+         thickness/overhang and do not participate in footprint sizing. */
       body:has([data-piece="FLOOR"].is-active) .scene-module.is-ghost { opacity: 1; }
       body:has([data-piece="FLOOR"].is-active) .scene-module.is-ghost .scene-module__sprite { opacity: 1; }
       body:has([data-piece="FLOOR"].is-active) .scene-module.is-ghost.is-valid,
@@ -34,24 +46,20 @@
           linear-gradient(90deg,transparent 8px,#d62828 8px,#d62828 10px,transparent 10px);
       }
 
-      /* TESTBUILD 1.8.6
-         floor_s atlas anchor is y=0.419*74≈31 px. The intended anchor from the
-         reference drawing is the bottom vertex of the visible top surface,
-         ≈23.75 asset px BELOW that stored point. Therefore the bitmap must move
-         UP by 23.75 asset px. 1.8.5 used the opposite sign and moved it down.
-         Width remains metric: browser-app derives scale from grid groundScale,
-         so iPhone/iPad scale the grid and footprint together. */
       .scene-module--floor .scene-module__sprite[data-sprite-frame="floor_s"] {
-        transform: scale(var(--sprite-scale, 1)) translateY(-23.75px) !important;
+        transform:
+          scaleX(var(--sprite-scale, 1))
+          scaleY(calc(var(--sprite-scale, 1) * 1.5322580645))
+          translateY(15.5px) !important;
       }
     </style>
   </head>
   <body>
-    <main class="app-shell" data-build-id="DDS-FLOOR-CAL-TB1.8.6">
+    <main class="app-shell" data-build-id="DDS-FLOOR-CAL-TB1.8.7">
       <header class="topbar">
         <div class="title-block">
           <h1>Baue dein Schweinchen-Haus</h1>
-          <p>FLOOR Fine Calibration · TESTBUILD 1.8.6 · Top-Surface Footprint → Grid · Orange = Überstand.</p>
+          <p>FLOOR Fine Calibration · TESTBUILD 1.8.7 · 95×31 Top-Surface → 2×2 Grid · Orange = Überstand.</p>
         </div>
         <div class="status-chip" data-status aria-live="polite">Bauteil wählen und losbauen.</div>
       </header>
@@ -98,6 +106,6 @@
         </div>
       </aside>
     </main>
-    <script type="module" src="./src/dds-04f/browser-app.mjs?build=DDS-FLOOR-CAL-TB1.8&rev=DDS-FLOOR-CAL-TB1.8.6"></script>
+    <script type="module" src="./src/dds-04f/browser-app.mjs?build=DDS-FLOOR-CAL-TB1.8&rev=DDS-FLOOR-CAL-TB1.8.7"></script>
   </body>
 </html>
