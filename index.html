@@ -3,21 +3,19 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="description" content="FLOOR Fine Calibration · TESTBUILD 1.8.11 · four-direction rotation s/e/n/w" />
-    <title>FLOOR Fine Calibration · TESTBUILD 1.8.11 – Bau & Wolf-Test</title>
+    <meta name="description" content="WALL Calibration · TESTBUILD 1.9.0 · wall_s anchor-to-grid-edge reference" />
+    <title>WALL Calibration · TESTBUILD 1.9.0 – Bau & Wolf-Test</title>
     <link rel="stylesheet" href="./src/dds-04f/prototype.css?build=DDS-FLOOR-CAL-TB1.8.11" />
     <style>
-      /* TESTBUILD 1.8.11: preserve the verified 1.8.10 FLOOR calibration exactly.
-         Restore yaw-based FLOOR frame selection for s/e/n/w. These four atlas
-         frames share the same 95x74 frame and 0.5/0.419 anchor contract, so the
-         verified scale applies identically. Diagonal FLOOR frames remain out of scope. */
+      /* FLOOR 1.8.11 reference remains unchanged. */
       body:has([data-piece="FLOOR"].is-active) .scene-module.is-ghost { opacity: 1; }
       body:has([data-piece="FLOOR"].is-active) .scene-module.is-ghost .scene-module__sprite { opacity: 1; }
       body:has([data-piece="FLOOR"].is-active) .scene-module.is-ghost.is-valid,
       body:has([data-piece="FLOOR"].is-active) .scene-module.is-ghost.is-invalid { --state-filter: brightness(1); }
       body:has([data-piece="FLOOR"].is-active) .scene-module:not(.scene-module--floor):not(.is-ghost) { opacity: 0.08; }
 
-      body:has([data-piece="FLOOR"].is-active) button.scene-module--floor::after {
+      body:has([data-piece="FLOOR"].is-active) button.scene-module--floor::after,
+      body:has([data-piece="WALL"].is-active) button.scene-module--wall::after {
         content: "";
         position: absolute;
         left: 50%;
@@ -40,14 +38,18 @@
           scaleX(var(--sprite-scale, 1))
           scaleY(calc(var(--sprite-scale, 1) * 0.76612903225)) !important;
       }
+
+      .scene-module--wall .scene-module__sprite[data-sprite-frame="wall_s"] {
+        transform: scale(var(--sprite-scale, 1)) !important;
+      }
     </style>
   </head>
   <body>
-    <main class="app-shell" data-build-id="DDS-FLOOR-CAL-TB1.8.11">
+    <main class="app-shell" data-build-id="DDS-FLOOR-CAL-TB1.8">
       <header class="topbar">
         <div class="title-block">
           <h1>Baue dein Schweinchen-Haus</h1>
-          <p>FLOOR Rotation · TESTBUILD 1.8.11 · 0° s → 90° e → 180° n → 270° w · Kalibrierung aus 1.8.10.</p>
+          <p>WALL Calibration · TESTBUILD 1.9.0 · wall_s: Anchor auf Grid-Kreuz · konstruktive Breite bis zum nächsten Kreuz.</p>
         </div>
         <div class="status-chip" data-status aria-live="polite">Bauteil wählen und losbauen.</div>
       </header>
@@ -94,6 +96,6 @@
         </div>
       </aside>
     </main>
-    <script type="module" src="./src/dds-04f/browser-app.mjs?build=DDS-FLOOR-CAL-TB1.8&rev=DDS-FLOOR-CAL-TB1.8.11"></script>
+    <script type="module" src="./src/dds-04f/browser-app.mjs?build=DDS-FLOOR-CAL-TB1.8&rev=DDS-WALL-CAL-TB1.9.0"></script>
   </body>
 </html>
